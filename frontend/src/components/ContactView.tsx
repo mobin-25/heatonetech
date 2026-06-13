@@ -704,7 +704,13 @@ I look forward to your response.`;
               <div className="mt-3">
                 <button
                   type="button"
-                  onClick={() => handleWhatsAppSubmit('919221783525')}
+                  onClick={() =>
+  window.open(
+    "https://wa.me/919221783525",
+    "_blank"
+  )
+
+}
                   className="w-full py-3 rounded-lg bg-[#25D366] hover:bg-[#20ba56] text-black font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-[0_4px_12px_rgba(37,211,102,0.15)] hover:shadow-[0_4px_20px_rgba(37,211,102,0.3)] active:scale-[0.98] cursor-pointer"
                   id="submit-whatsapp-btn"
                 >
