@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Base styling enhancements for industrial themes */
+html, body {
+  background-color: #060608;
+  color: #f4f4f5;
+  font-family: var(--font-sans);
+}
+
+/* Custom fade effects and animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Sleek Webkit scrollbar stylings */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060608;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}
+
+/* ============================================
+   STEEL LIGHT MODE — Premium Theme Overrides
+   ============================================ */
+
+/* Root-level background and color reset */
+.light-mode,
+html.light-mode,
+html.light-mode body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Outer page backgrounds */
+.light-mode .bg-\[\#060608\],
+.light-mode .bg-\[\#020202\],
+.light-mode .bg-\[\#030304\],
+.light-mode .bg-zinc-950,
+.light-mode .bg-black {
+  background-color: #f1f5f9 !important;
+}
+
+/* Card / panel backgrounds → crisp white with slate border */
+.light-mode .bg-\[\#0b0c10\],
+.light-mode .bg-\[\#0b0c0f\],
+.light-mode .bg-\[\#0b0c0e\],
+.light-mode .bg-\[\#0b0c0f\]\/95,
+.light-mode .bg-\[\#0a0b0d\],
+.light-mode .bg-\[\#0a0b0e\],
+.light-mode .bg-\[\#111215\],
+.light-mode .bg-\[\#111216\],
+.light-mode .bg-\[\#121318\],
+.light-mode .bg-\[\#0f1013\],
+.light-mode .bg-\[\#0d0e12\],
+.light-mode .bg-\[\#07080a\],
+.light-mode .bg-\[\#0e0f14\],
+.light-mode .bg-\[\#08090b\],
+.light-mode .bg-\[\#090a0d\],
+.light-mode .bg-\[\#0d0e12\],
+.light-mode .bg-zinc-900,
+.light-mode .bg-zinc-900\/20,
+.light-mode .bg-zinc-900\/40,
+.light-mode .bg-zinc-900\/50,
+.light-mode .bg-zinc-900\/60,
+.light-mode .bg-zinc-900\/80,
+.light-mode .bg-zinc-950\/40,
+.light-mode .bg-zinc-950\/50 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Hover states for panels */
+.light-mode .hover\:bg-zinc-900\/20:hover,
+.light-mode .hover\:bg-zinc-900\/60:hover,
+.light-mode .hover\:bg-zinc-900:hover,
+.light-mode .hover\:bg-zinc-800:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Zinc-800 shade panels */
+.light-mode .bg-zinc-800 {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+.light-mode .bg-zinc-800\/55,
+.light-mode .bg-zinc-800\/40 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Sticky header and footer */
+.light-mode .bg-\[\#0A0A0C\],
+.light-mode .bg-\[\#0A0A0C\]\/90,
+.light-mode header,
+.light-mode footer {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Min-h-screen base container */
+.light-mode .min-h-screen {
+  background-color: #f1f5f9 !important;
+}
+
+/* Text color remapping */
+.light-mode .text-white,
+.light-mode .text-zinc-50,
+.light-mode .text-zinc-100,
+.light-mode .text-zinc-200,
+.light-mode .text-zinc-300 {
+  color: #0f172a !important;
+}
+
+.light-mode .text-zinc-400,
+.light-mode .text-zinc-500 {
+  color: #64748b !important;
+}
+
+.light-mode .text-zinc-450 {
+  color: #475569 !important;
+}
+
+.light-mode .text-zinc-650 {
+  color: #64748b !important;
+}
+
+/* Brand header name */
+.light-mode #brand-name {
+  color: #0f172a !important;
+}
+
+.light-mode .text-orange-200\/60 {
+  color: #ea580c !important;
+}
+
+/* Border overrides */
+.light-mode .border-zinc-900,
+.light-mode .border-zinc-900\/60,
+.light-mode .border-zinc-800,
+.light-mode .border-zinc-700,
+.light-mode .border-zinc-800\/80,
+.light-mode .border-orange-500\/10,
+.light-mode .border-\[\#18181b\],
+.light-mode .border-zinc-950,
+.light-mode .divide-zinc-900 > * + * {
+  border-color: #e2e8f0 !important;
+}
+
+/* Dividers */
+.light-mode .divide-zinc-800 > * + *,
+.light-mode .divide-zinc-900 > * + * {
+  border-color: #e2e8f0 !important;
+}
+
+/* Input fields */
+.light-mode input,
+.light-mode textarea,
+.light-mode select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Orange accent buttons stay orange */
+.light-mode .bg-orange-600 {
+  background-color: #ea580c !important;
+  color: #ffffff !important;
+}
+
+/* Nav hover text — becomes orange in light mode for active feel */
+.light-mode .hover\:text-white:hover {
+  color: #ea580c !important;
+}
+
+.light-mode .hover\:bg-orange-500\/5:hover {
+  background-color: rgba(234, 88, 12, 0.08) !important;
+}
+
+/* Keep orange-500 accent (tab underlines, active buttons) */
+.light-mode .bg-orange-500 {
+  background-color: #f97316 !important;
+}
+
+/* Modal overlay */
+.light-mode .bg-black\/80,
+.light-mode .bg-black\/85 {
+  background-color: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* WhatsApp popover */
+.light-mode #whatsapp-menu-popover {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-mode #whatsapp-menu-popover span.text-zinc-400 {
+  color: #475569 !important;
+}
+
+/* Emerald badges stay green */
+.light-mode .text-emerald-400 {
+  color: #059669 !important;
+}
+
+.light-mode .bg-emerald-950\/20 {
+  background-color: #ecfdf5 !important;
+}
+
+.light-mode .border-emerald-500\/20,
+.light-mode .border-emerald-500\/30 {
+  border-color: #a7f3d0 !important;
+}
+
+/* Orange accent badges */
+.light-mode .text-orange-400 {
+  color: #ea580c !important;
+}
+
+.light-mode .bg-orange-950\/20,
+.light-mode .bg-orange-950\/25,
+.light-mode .bg-orange-950\/30 {
+  background-color: #fff7ed !important;
+}
+
+.light-mode .border-orange-500\/25,
+.light-mode .border-orange-500\/30,
+.light-mode .border-orange-500\/35 {
+  border-color: #fed7aa !important;
+}
+
+/* Red accent elements */
+.light-mode .bg-red-950\/20 {
+  background-color: #fff1f2 !important;
+}
+
+.light-mode .border-red-500\/20,
+.light-mode .border-red-500\/30 {
+  border-color: #fecaca !important;
+}
+
+/* Scrollbar overrides for light mode */
+.light-mode ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+.light-mode ::-webkit-scrollbar-thumb:hover {
+  background: #f97316 !important;
+}
+
+/* Smooth theme transition for all elements */
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
