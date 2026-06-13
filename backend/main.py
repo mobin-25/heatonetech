@@ -143,7 +143,7 @@ def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
         return False
 
     payload = json.dumps({
-        "from": "Heat One Technology <onboarding@resend.dev>",
+        "from": "Heat One Technology <noreply@heatonetechnology.live>",
         "to": [to_email],
         "subject": subject,
         "html": html_body
