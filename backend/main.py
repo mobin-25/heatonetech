@@ -412,6 +412,13 @@ def send_otp_email(email: str, otp: str):
         msg['Subject'] = subject
         msg.attach(MIMEText(html_body, 'html'))
         
+        print("=== SMTP DEBUG ===")
+        print("SMTP_SERVER:", smtp_server)
+        print("SMTP_PORT:", smtp_port_str)
+        print("SMTP_USER:", smtp_user)
+        print("SMTP_PASSWORD_SET:", bool(smtp_pass))
+        print("==================")
+
         server = smtplib.SMTP(smtp_server, int(smtp_port_str))
         server.starttls()
         server.login(smtp_user, smtp_pass)
@@ -420,7 +427,11 @@ def send_otp_email(email: str, otp: str):
         print(f"OTP verification email successfully sent to {recipient} via {smtp_user}")
         return True
     except Exception as e:
-        print(f"Failed to send OTP verification email to {recipient}: {e}")
+        print("=== SMTP ERROR ===")
+        import traceback
+        traceback.print_exc()
+        print(f"Failed to send OTP verification email to {recipient}")
+        print(repr(e))
         return False
 
 @app.post("/api/otp/send")
