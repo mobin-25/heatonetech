@@ -32,7 +32,7 @@ app = FastAPI(title="Heat One Technology API")
 # --- CORS BLOCK ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://heatonetechnology.live", "https://www.heatonetechnology.live","https://heatonetech-6kg5.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
