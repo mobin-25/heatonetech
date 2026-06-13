@@ -6,9 +6,8 @@ from typing import List, Optional
 from bson import ObjectId
 from seed_data import SEED_PRODUCTS
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import urllib.request
+import json
 import random
 
 # Load environment variables from .env if present
@@ -21,7 +20,6 @@ if os.path.exists(env_path):
                 continue
             if "=" in stripped:
                 k, v = stripped.split("=", 1)
-                # Remove inline comments if any
                 if "#" in v:
                     v = v.split("#", 1)[0].strip()
                 v = v.strip().strip("'").strip('"')
@@ -34,7 +32,7 @@ app = FastAPI(title="Heat One Technology API")
 # --- CORS BLOCK ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows your React/Vite/Next.js app to connect
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,11 +44,11 @@ MONGO_DETAILS = os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017")
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client.heat_one_db
 product_collection = database.get_collection("products")
-inquiry_collection = database.get_collection("inquiries") 
+inquiry_collection = database.get_collection("inquiries")
 user_collection = database.get_collection("users")
 admin_collection = database.get_collection("admins")
 
-# 3. Define Pydantic Models aligning with frontend schemas
+# 3. Define Pydantic Models
 class ProductModel(BaseModel):
     id: Optional[str] = None
     name: str
@@ -85,7 +83,6 @@ class OtpVerifyModel(BaseModel):
     email: str
     otp: str
 
-# Auth Request Models
 class UserRegisterModel(BaseModel):
     email: str
     password: str
@@ -119,7 +116,6 @@ def verify_password(password: str, hashed: str) -> bool:
             salt = bytes.fromhex(salt_hex)
             pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
             return pwd_hash.hex() == hash_hex
-            
         # Standard bcrypt verification
         return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
     except Exception:
@@ -134,22 +130,96 @@ def serialize_doc(doc) -> dict:
         del doc["_id"]
     return doc
 
-# Helper function to send email notification to admin
-def send_inquiry_email(inquiry_data: dict):
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_pass = os.getenv("SMTP_PASSWORD")
-    
-    if not smtp_user or not smtp_pass:
-        print("WARNING: SMTP_USER and SMTP_PASSWORD not set in environment. Skipping email dispatch.")
+
+# ─────────────────────────────────────────────
+#  RESEND EMAIL HELPERS  (replaces all SMTP)
+# ─────────────────────────────────────────────
+
+def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
+    """Low-level helper: sends one email via the Resend HTTPS API."""
+    api_key = os.getenv("RESEND_API_KEY")
+    if not api_key:
+        print("WARNING: RESEND_API_KEY not set. Skipping email dispatch.")
         return False
-        
-    recipient = "heatonetechnology@gmail.com"
-    subject = f"New Inquiry Alert - {inquiry_data.get('name')}"
-    
-    # Format products list
+
+    payload = json.dumps({
+        "from": "Heat One Technology <onboarding@resend.dev>",
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req) as response:
+            result = json.loads(response.read())
+            print(f"Email sent to {to_email} via Resend. ID: {result.get('id')}")
+            return True
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        print(f"Resend API HTTP error {e.code}: {body}")
+        return False
+    except Exception as e:
+        print(f"Resend API error: {e}")
+        return False
+
+
+def send_otp_email(email: str, otp: str) -> bool:
+    """Sends OTP verification email via Resend."""
+    subject = "Verification Code - Heat One Technology"
+    html_body = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #fafafa; padding: 20px; color: #18181b;">
+      <div style="max-width: 460px; margin: 0 auto; background-color: #ffffff;
+                  border: 1px solid #e4e4e7; border-radius: 12px; padding: 30px;
+                  box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        <h2 style="color: #ea580c; font-size: 18px; font-weight: bold; text-transform: uppercase;
+                   margin-top: 0; border-bottom: 2px solid #ea580c; padding-bottom: 10px;
+                   letter-spacing: 1px;">Heat One Technology</h2>
+        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46; margin-top: 20px;">
+          Dear Valued Customer,
+        </p>
+        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46;">
+          Thank you for contacting Heat One Technology. To complete your verification,
+          please use the following 6-digit verification code:
+        </p>
+        <div style="background-color: #f9fafb; border: 2px dashed #ea580c; border-radius: 8px;
+                    padding: 15px; text-align: center; margin: 25px 0;">
+          <span style="font-size: 34px; font-weight: 900; letter-spacing: 5px;
+                       color: #ea580c; font-family: 'Courier New', Courier, monospace;">
+            {otp}
+          </span>
+        </div>
+        <p style="font-size: 12px; line-height: 1.5; color: #71717a; margin-bottom: 20px;">
+          If you did not initiate this request, please ignore this email.
+        </p>
+        <div style="border-top: 1px solid #e4e4e7; padding-top: 15px;
+                    font-size: 11px; color: #a1a1aa; margin-top: 25px;">
+          This is an automated security message. Please do not reply directly to this mail.<br/>
+          &copy; Heat One Technology Team
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+    return _resend_send(email, subject, html_body)
+
+
+def send_inquiry_email(inquiry_data: dict) -> bool:
+    """Sends inquiry notification email to the admin via Resend."""
     products = inquiry_data.get("products", [])
     attached_prods = ", ".join(products) if isinstance(products, list) else str(products)
-    
+
+    subject = f"New Inquiry Alert - {inquiry_data.get('name')}"
     html_body = f"""
     <html>
       <body style="font-family: sans-serif; line-height: 1.6;">
@@ -169,30 +239,14 @@ def send_inquiry_email(inquiry_data: dict):
         <p>{inquiry_data.get('message')}</p>
         <hr style="border: none; border-top: 1px solid #ccc;" />
         <p style="color: #666; font-size: 0.9em;">
-          This is an automated notification. Please reply directly to the client at <a href="mailto:{inquiry_data.get('email')}">{inquiry_data.get('email')}</a>.
+          This is an automated notification. Please reply directly to the client at
+          <a href="mailto:{inquiry_data.get('email')}">{inquiry_data.get('email')}</a>.
         </p>
       </body>
     </html>
     """
+    return _resend_send("heatonetechnology@gmail.com", subject, html_body)
 
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = recipient
-        msg['Subject'] = subject
-        msg.attach(MIMEText(html_body, 'html'))
-        
-        # Connect using TLS
-        server = smtplib.SMTP(os.getenv("SMTP_SERVER", "smtp.gmail.com"), int(os.getenv("SMTP_PORT", "587")))
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.sendmail(smtp_user, recipient, msg.as_string())
-        server.quit()
-        print(f"Notification email successfully sent to {recipient}")
-        return True
-    except Exception as e:
-        print(f"Failed to send notification email: {e}")
-        return False
 
 # 4. Startup event to seed the database if empty
 @app.on_event("startup")
@@ -207,16 +261,17 @@ async def seed_db():
             seeded.append(p_dict)
         await product_collection.insert_many(seeded)
         print(f"Successfully seeded {len(SEED_PRODUCTS)} products.")
-    
+
     admin_count = await admin_collection.count_documents({})
     if admin_count == 0:
         print("Seeding admins into database...")
         admins_to_seed = [
             {"username": "salman", "password": hash_password("salman@HOTT2026!")},
-            {"username": "mobin", "password": hash_password("mobin@HOTT2026!")}
+            {"username": "mobin",  "password": hash_password("mobin@HOTT2026!")}
         ]
         await admin_collection.insert_many(admins_to_seed)
         print("Successfully seeded admins.")
+
 
 # 5. API Routes for Products
 @app.get("/")
@@ -246,14 +301,14 @@ async def create_product(product: ProductModel):
         product_dict["_id"] = product_dict["id"]
     else:
         product_dict.pop("id", None)
-        
+
     try:
         if "_id" in product_dict:
             existing = await product_collection.find_one({"_id": product_dict["_id"]})
             if existing:
                 await product_collection.replace_one({"_id": product_dict["_id"]}, product_dict)
                 return {"message": "Product updated successfully", "id": product_dict["_id"]}
-        
+
         new_product = await product_collection.insert_one(product_dict)
         return {"message": "Product added successfully", "id": str(new_product.inserted_id)}
     except Exception as e:
@@ -311,6 +366,7 @@ async def get_all_users():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # 6. API Routes for Inquiries
 @app.get("/api/inquiries")
 async def get_all_inquiries(email: Optional[str] = None):
@@ -334,10 +390,10 @@ async def create_inquiry(inquiry: InquiryModel, background_tasks: BackgroundTask
     try:
         new_inquiry = await inquiry_collection.insert_one(inquiry_dict)
         inquiry_dict["id"] = str(new_inquiry.inserted_id)
-        
-        # Schedule notification email to be sent in the background
+
+        # Send admin notification email in background
         background_tasks.add_task(send_inquiry_email, inquiry_dict)
-        
+
         return {
             "status": "success",
             "message": "Inquiry submitted successfully.",
@@ -369,98 +425,33 @@ async def clear_all_inquiries():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- OTP VERIFICATION SYSTEM ---
+
+# ─────────────────────────────────────────────
+#  OTP VERIFICATION SYSTEM
+# ─────────────────────────────────────────────
 otp_store = {}
-
-def send_otp_email(email: str, otp: str):
-    smtp_user = os.getenv("OTP_SMTP_USER") or os.getenv("SMTP_USER")
-    smtp_pass = os.getenv("OTP_SMTP_PASSWORD") or os.getenv("SMTP_PASSWORD")
-    smtp_server = os.getenv("OTP_SMTP_SERVER") or os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port_str = os.getenv("OTP_SMTP_PORT") or os.getenv("SMTP_PORT", "587")
-    
-    if not smtp_user or not smtp_pass:
-        print("WARNING: OTP sender credentials (OTP_SMTP_USER/PASSWORD) not set. Skipping OTP email dispatch.")
-        return False
-        
-    recipient = email.strip()
-    subject = "Verification Code - Heat One Technology"
-    
-    html_body = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; background-color: #fafafa; padding: 20px; color: #18181b;">
-      <div style="max-width: 460px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-        <h2 style="color: #ea580c; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-top: 0; border-bottom: 2px solid #ea580c; padding-bottom: 10px; letter-spacing: 1px;">Heat One Technology</h2>
-        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46; margin-top: 20px;">Dear Valued Customer,</p>
-        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46;">Thank you for contacting Heat One Technology. To complete your verification, please use the following 6-digit verification code:</p>
-        <div style="background-color: #f9fafb; border: 2px dashed #ea580c; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
-          <span style="font-size: 34px; font-weight: 900; letter-spacing: 5px; color: #ea580c; font-family: 'Courier New', Courier, monospace;">{otp}</span>
-        </div>
-        <p style="font-size: 12px; line-height: 1.5; color: #71717a; margin-bottom: 20px;">If you did not initiate this request, please ignore this email.</p>
-        <div style="border-top: 1px solid #e4e4e7; padding-top: 15px; font-size: 11px; color: #a1a1aa; margin-top: 25px;">
-          This is an automated security message. Please do not reply directly to this mail.<br/>
-          &copy; Heat One Technology Team
-        </div>
-      </div>
-    </body>
-    </html>
-    """
-
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = recipient
-        msg['Subject'] = subject
-        msg.attach(MIMEText(html_body, 'html'))
-        
-        print("=== SMTP DEBUG ===")
-        print("SMTP_SERVER:", smtp_server)
-        print("SMTP_PORT:", smtp_port_str)
-        print("SMTP_USER:", smtp_user)
-        print("SMTP_PASSWORD_SET:", bool(smtp_pass))
-        print("==================")
-
-        server = smtplib.SMTP(smtp_server, int(smtp_port_str))
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.sendmail(smtp_user, recipient, msg.as_string())
-        server.quit()
-        print(f"OTP verification email successfully sent to {recipient} via {smtp_user}")
-        return True
-    except Exception as e:
-        print("=== SMTP ERROR ===")
-        import traceback
-        traceback.print_exc()
-        print(f"Failed to send OTP verification email to {recipient}")
-        print(repr(e))
-        return False
 
 @app.post("/api/otp/send")
 async def send_otp(data: OtpSendModel, background_tasks: BackgroundTasks):
     code = f"{random.randint(100000, 999999)}"
     email = data.email.strip()
     otp_store[email] = code
-    print(f"[OTP SERVICE] Generated OTP code '{code}' for client email: '{email}'")
-    
-    # Schedule background tasks for delivery
+    print(f"[OTP SERVICE] Generated OTP '{code}' for '{email}'")
+
     background_tasks.add_task(send_otp_email, email, code)
-    
-    # DEV_MODE configuration check
+
     dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
-    
-    response_payload = {
-        "status": "success",
-        "message": "OTP sent."
-    }
+    response_payload = {"status": "success", "message": "OTP sent."}
     if dev_mode:
         response_payload["demo_otp"] = code
-        
+
     return response_payload
 
 @app.post("/api/otp/verify")
 async def verify_otp(data: OtpVerifyModel):
     email = data.email.strip()
-    otp = data.otp.strip()
-    
+    otp   = data.otp.strip()
+
     stored = otp_store.get(email)
     if stored and stored == otp:
         del otp_store[email]
@@ -468,51 +459,51 @@ async def verify_otp(data: OtpVerifyModel):
     else:
         raise HTTPException(status_code=400, detail="Invalid verification code. Please check and try again.")
 
-# --- USER ACCOUNTS AUTH SYSTEM ---
+
+# ─────────────────────────────────────────────
+#  USER ACCOUNTS AUTH SYSTEM
+# ─────────────────────────────────────────────
 unverified_users = {}
 
 @app.post("/api/auth/register")
 async def register_user(data: UserRegisterModel, background_tasks: BackgroundTasks):
-    email = data.email.strip().lower()
+    email    = data.email.strip().lower()
     password = data.password.strip()
-    
+
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters long.")
-        
+
     existing = await user_collection.find_one({"email": email})
     if existing:
         raise HTTPException(status_code=400, detail="An account with this email address already exists.")
-        
+
     code = f"{random.randint(100000, 999999)}"
     otp_store[email] = code
     print(f"[AUTH REGISTRY] Generated signup OTP '{code}' for '{email}'")
-    
+
     unverified_users[email] = hash_password(password)
     background_tasks.add_task(send_otp_email, email, code)
-    
+
     dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
-    payload = {
-        "status": "success",
-        "message": "OTP verification email dispatched."
-    }
+    payload = {"status": "success", "message": "OTP verification email dispatched."}
     if dev_mode:
         payload["demo_otp"] = code
-        
+
     return payload
 
 @app.post("/api/auth/verify-register")
 async def verify_register(data: UserVerifyRegisterModel):
     email = data.email.strip().lower()
-    otp = data.otp.strip()
-    
+    otp   = data.otp.strip()
+
     stored_otp = otp_store.get(email)
     if not stored_otp or stored_otp != otp:
         raise HTTPException(status_code=400, detail="Invalid verification code. Please try again.")
-        
+
     password_hash = unverified_users.get(email)
     if not password_hash:
         raise HTTPException(status_code=400, detail="Registration session expired or not found. Please sign up again.")
-        
+
     import datetime
     new_user = {
         "email": email,
@@ -520,7 +511,7 @@ async def verify_register(data: UserVerifyRegisterModel):
         "is_verified": True,
         "createdAt": datetime.datetime.utcnow().isoformat()
     }
-    
+
     try:
         await user_collection.insert_one(new_user)
         if email in otp_store:
@@ -537,16 +528,16 @@ async def verify_register(data: UserVerifyRegisterModel):
 
 @app.post("/api/auth/login")
 async def login_user(data: UserLoginModel):
-    email = data.email.strip().lower()
+    email    = data.email.strip().lower()
     password = data.password.strip()
-    
+
     user = await user_collection.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
-        
+
     if not verify_password(password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
-        
+
     return {
         "status": "success",
         "message": "Authentication successful.",
@@ -557,14 +548,14 @@ async def login_user(data: UserLoginModel):
 async def login_admin(data: AdminLoginModel):
     username = data.username.strip()
     password = data.password.strip()
-    
+
     admin = await admin_collection.find_one({"username": username})
     if not admin:
         raise HTTPException(status_code=401, detail="Invalid Tech ID or security Passkey code.")
-        
+
     if not verify_password(password, admin["password"]):
         raise HTTPException(status_code=401, detail="Invalid Tech ID or security Passkey code.")
-        
+
     return {
         "status": "success",
         "message": "Admin authentication successful.",
