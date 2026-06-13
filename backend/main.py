@@ -152,7 +152,8 @@ def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
     print(f"[RESEND] API Key present: {bool(api_key)} (starts with: {api_key[:8]}...)")
 
     payload = json.dumps({
-        "from": "Heat One Technology <noreply@heatonetechnology.live>",
+        "from": "Heat One Technology <noreply@send.heatonetechnology.live>",
+
         "to": [to_email],
         "subject": subject,
         "html": html_body
