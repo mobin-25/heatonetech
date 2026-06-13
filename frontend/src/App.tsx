@@ -126,7 +126,7 @@ export default function App() {
   const showToast = (msg: string) => {
     setToast({ message: msg, visible: true });
     setTimeout(() => {
-      setToast(prev => ({ ...prev, visible: false }));
+      setToast((prev: { message: string; visible: boolean }) => ({ ...prev, visible: false }));
     }, 5000);
   };
 
@@ -292,13 +292,13 @@ export default function App() {
 
   // Cart operations
   const handleAddProductToQuote = (product: Product) => {
-    if (!quoteCart.some((item) => item.id === product.id)) {
+    if (!quoteCart.some((item: Product) => item.id === product.id)) {
       setQuoteCart([...quoteCart, product]);
     }
   };
 
   const handleRemoveProductFromQuote = (productId: string) => {
-    setQuoteCart(quoteCart.filter((item) => item.id !== productId));
+    setQuoteCart(quoteCart.filter((item: Product) => item.id !== productId));
   };
 
   const handleClearQuoteCart = () => {
