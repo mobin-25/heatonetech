@@ -1,0 +1,6 @@
+{
+  "name": "Heat One Technology",
+  "description": "Industrial heating solutions company profile and interactive product catalog featuring quartz tube heaters and infrared heating technology.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
