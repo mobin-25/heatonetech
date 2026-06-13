@@ -445,13 +445,13 @@ async def clear_all_inquiries():
 otp_store = {}
 
 @app.post("/api/otp/send")
-async def send_otp(data: OtpSendModel, background_tasks: BackgroundTasks):
+async def send_otp(data: OtpSendModel):
     code = f"{random.randint(100000, 999999)}"
     email = data.email.strip()
     otp_store[email] = code
     print(f"[OTP SERVICE] Generated OTP '{code}' for '{email}'")
 
-    background_tasks.add_task(send_otp_email, email, code)
+    send_otp_email(email, code)
 
     dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
     response_payload = {"status": "success", "message": "OTP sent."}
@@ -479,7 +479,7 @@ async def verify_otp(data: OtpVerifyModel):
 unverified_users = {}
 
 @app.post("/api/auth/register")
-async def register_user(data: UserRegisterModel, background_tasks: BackgroundTasks):
+async def register_user(data: UserRegisterModel):
     email    = data.email.strip().lower()
     password = data.password.strip()
 
@@ -495,7 +495,7 @@ async def register_user(data: UserRegisterModel, background_tasks: BackgroundTas
     print(f"[AUTH REGISTRY] Generated signup OTP '{code}' for '{email}'")
 
     unverified_users[email] = hash_password(password)
-    background_tasks.add_task(send_otp_email, email, code)
+    send_otp_email(email, code)
 
     dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
     payload = {"status": "success", "message": "OTP verification email dispatched."}
