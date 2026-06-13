@@ -7,6 +7,7 @@ from bson import ObjectId
 from seed_data import SEED_PRODUCTS
 import os
 import urllib.request
+import urllib.error
 import json
 import random
 
@@ -32,7 +33,11 @@ app = FastAPI(title="Heat One Technology API")
 # --- CORS BLOCK ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://heatonetechnology.live", "https://www.heatonetechnology.live","https://heatonetech-6kg5.vercel.app"],
+    allow_origins=[
+        "https://heatonetechnology.live",
+        "https://www.heatonetechnology.live",
+        "https://heatonetech-6kg5.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -132,7 +137,7 @@ def serialize_doc(doc) -> dict:
 
 
 # ─────────────────────────────────────────────
-#  RESEND EMAIL HELPERS  (replaces all SMTP)
+#  RESEND EMAIL HELPERS
 # ─────────────────────────────────────────────
 
 def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
@@ -141,6 +146,10 @@ def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
     if not api_key:
         print("WARNING: RESEND_API_KEY not set. Skipping email dispatch.")
         return False
+
+    print(f"[RESEND] Attempting to send email to: {to_email}")
+    print(f"[RESEND] Subject: {subject}")
+    print(f"[RESEND] API Key present: {bool(api_key)} (starts with: {api_key[:8]}...)")
 
     payload = json.dumps({
         "from": "Heat One Technology <noreply@heatonetechnology.live>",
@@ -160,16 +169,21 @@ def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
     )
 
     try:
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=15) as response:
             result = json.loads(response.read())
-            print(f"Email sent to {to_email} via Resend. ID: {result.get('id')}")
+            print(f"[RESEND] ✅ Email sent successfully to {to_email}. ID: {result.get('id')}")
             return True
     except urllib.error.HTTPError as e:
         body = e.read().decode()
-        print(f"Resend API HTTP error {e.code}: {body}")
+        print(f"[RESEND] ❌ HTTP error {e.code}: {body}")
+        return False
+    except urllib.error.URLError as e:
+        print(f"[RESEND] ❌ URL error (network issue?): {e.reason}")
         return False
     except Exception as e:
-        print(f"Resend API error: {e}")
+        import traceback
+        print(f"[RESEND] ❌ Unexpected error: {repr(e)}")
+        traceback.print_exc()
         return False
 
 
@@ -391,7 +405,6 @@ async def create_inquiry(inquiry: InquiryModel, background_tasks: BackgroundTask
         new_inquiry = await inquiry_collection.insert_one(inquiry_dict)
         inquiry_dict["id"] = str(new_inquiry.inserted_id)
 
-        # Send admin notification email in background
         background_tasks.add_task(send_inquiry_email, inquiry_dict)
 
         return {
