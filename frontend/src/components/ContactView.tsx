@@ -210,22 +210,8 @@ export default function ContactView({
     // Prepare content for WhatsApp chat pre-fill
     const attachedProducts = quoteCart.map(p => `• ${p.name}`).join('\n');
     const calculationPart = customCalculations ? `\n\n[Thermal System Dimensions]:\n${customCalculations}` : '';
-    
-    const textMsg = `Dear Heat One Technology Team,
 
-I came across your website and would like to learn more about your industrial heating solutions. Below are my requirement details:
-
-*Name:* ${name}
-*Company:* ${company || 'Not provided'}
-*Email:* ${email}
-*Phone:* ${fullPhoneNumber}
-
-${attachedProducts ? `*Attached Products for Quote Inquiry:*\n${attachedProducts}` : '*General Inquiry: Product Range Details*'}
-
-*Project Notes / Specifications:*
-${message}${calculationPart}
-
-I look forward to your response.`;
+    const textMsg = `Dear Heat One Technology Team,\n\nI came across your website and would like to learn more about your industrial heating solutions. Below are my requirement details:\n\n*Name:* ${name}\n*Company:* ${company || 'Not provided'}\n*Email:* ${email}\n*Phone:* ${fullPhoneNumber}\n\n${attachedProducts ? `*Attached Products for Quote Inquiry:*\n${attachedProducts}` : '*General Inquiry: Product Range Details*'}\n\n*Project Notes / Specifications:*\n${message}${calculationPart}\n\nI look forward to your response.`;
 
     const encodedText = encodeURIComponent(textMsg);
     const whatsappUrl = `https://wa.me/${targetPhoneNum}?text=${encodedText}`;
@@ -249,20 +235,27 @@ I look forward to your response.`;
     };
 
     try {
-      // Send to FastAPI / MongoDB backend
-      await fetch(getApiUrl("/api/inquiries"), {
+      // Open WhatsApp URL synchronously to avoid popup blocking
+      const win = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+      // Log the WhatsApp inquiry asynchronously (don't await, to keep UX fast)
+      fetch(getApiUrl("/api/inquiries"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newInquiry),
+      }).then(() => {
+        const updated = [newInquiry, ...submittedInquiries];
+        setSubmittedInquiries(updated);
+        localStorage.setItem('heat_one_inquiries', JSON.stringify(updated));
+      }).catch((err) => {
+        console.error('Error submitting WhatsApp log to database', err);
       });
 
-      const updated = [newInquiry, ...submittedInquiries];
-      setSubmittedInquiries(updated);
-      localStorage.setItem('heat_one_inquiries', JSON.stringify(updated));
+      // If window failed to open (popup blocked or environment), fallback to navigating current window
+      if (!win) {
+        window.location.href = whatsappUrl;
+      }
 
-      // Direct browser redirect
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      
       // Reset forms after 10 seconds delay
       setTimeout(() => {
         setName('');
@@ -274,8 +267,8 @@ I look forward to your response.`;
         onClearCustomCalculations();
       }, 10000);
     } catch (err) {
-      console.error('Error submitting WhatsApp log to database', err);
-      // Still open WhatsApp even if DB logging fails so user's message is sent!
+      console.error('Error preparing WhatsApp submission', err);
+      // Attempt to open WhatsApp even if logging/setup fails
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
   };
@@ -704,13 +697,7 @@ I look forward to your response.`;
               <div className="mt-3">
                 <button
                   type="button"
-                  onClick={() =>
-  window.open(
-    "https://wa.me/919221783525",
-    "_blank"
-  )
-
-}
+                  onClick={() => handleWhatsAppSubmit('919221783525')}
                   className="w-full py-3 rounded-lg bg-[#25D366] hover:bg-[#20ba56] text-black font-extrabold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-[0_4px_12px_rgba(37,211,102,0.15)] hover:shadow-[0_4px_20px_rgba(37,211,102,0.3)] active:scale-[0.98] cursor-pointer"
                   id="submit-whatsapp-btn"
                 >
