@@ -10,6 +10,9 @@ import urllib.request
 import urllib.error
 import json
 import random
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Load environment variables from .env if present
 env_path = os.path.join(os.path.dirname(__file__), ".env")
@@ -140,55 +143,103 @@ def serialize_doc(doc) -> dict:
 
 
 # ─────────────────────────────────────────────
-#  RESEND EMAIL HELPERS
+#  EMAIL DISPATCH SYSTEM (RESEND & SMTP FALLBACK)
 # ─────────────────────────────────────────────
 
 def _resend_send(to_email: str, subject: str, html_body: str) -> bool:
-    """Low-level helper: sends one email via the Resend HTTPS API."""
+    """Low-level helper: sends one email via the Resend HTTPS API, trying multiple fallbacks."""
     api_key = os.getenv("RESEND_API_KEY")
     if not api_key:
-        print("WARNING: RESEND_API_KEY not set. Skipping email dispatch.")
+        print("WARNING: RESEND_API_KEY not set. Skipping Resend email dispatch.")
         return False
 
-    print(f"[RESEND] Attempting to send email to: {to_email}")
-    print(f"[RESEND] Subject: {subject}")
-    print(f"[RESEND] API Key present: {bool(api_key)} (starts with: {api_key[:8]}...)")
+    # Try different potential verified domains in order
+    senders = [
+        "Heat One Technology <noreply@send.heatonetechnology.live>",
+        "Heat One Technology <noreply@heatonetechnology.live>",
+        "Heat One Technology <onboarding@resend.dev>"
+    ]
 
-    payload = json.dumps({
-        "from": "Heat One Technology <noreply@send.heatonetechnology.live>",
+    for sender in senders:
+        print(f"[RESEND] Attempting email dispatch from '{sender}' to '{to_email}'")
+        payload = json.dumps({
+            "from": sender,
+            "to": [to_email],
+            "subject": subject,
+            "html": html_body
+        }).encode("utf-8")
 
-        "to": [to_email],
-        "subject": subject,
-        "html": html_body
-    }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.resend.com/emails",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
 
-    req = urllib.request.Request(
-        "https://api.resend.com/emails",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        },
-        method="POST"
-    )
+        try:
+            with urllib.request.urlopen(req, timeout=15) as response:
+                result = json.loads(response.read())
+                print(f"[RESEND] ✅ Email sent successfully from {sender} to {to_email}. ID: {result.get('id')}")
+                return True
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()
+            print(f"[RESEND] ❌ HTTP error {e.code} for sender {sender}: {body}")
+        except urllib.error.URLError as e:
+            print(f"[RESEND] ❌ URL error (network issue?) for sender {sender}: {e.reason}")
+        except Exception as e:
+            print(f"[RESEND] ❌ Unexpected error for sender {sender}: {repr(e)}")
 
+    print("[RESEND] ❌ All Resend sender configurations failed.")
+    return False
+
+def _smtp_send(to_email: str, subject: str, html_body: str) -> bool:
+    """Fallback helper: sends email via Gmail SMTP using credentials in environment or .env."""
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_pass = os.getenv("SMTP_PASSWORD")
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port_str = os.getenv("SMTP_PORT", "587")
+
+    if not smtp_user or not smtp_pass:
+        print("WARNING: SMTP credentials not set. Skipping SMTP fallback.")
+        return False
+
+    print(f"[SMTP] Attempting email dispatch via SMTP to '{to_email}'")
     try:
-        with urllib.request.urlopen(req, timeout=15) as response:
-            result = json.loads(response.read())
-            print(f"[RESEND] ✅ Email sent successfully to {to_email}. ID: {result.get('id')}")
-            return True
-    except urllib.error.HTTPError as e:
-        body = e.read().decode()
-        print(f"[RESEND] ❌ HTTP error {e.code}: {body}")
-        return False
-    except urllib.error.URLError as e:
-        print(f"[RESEND] ❌ URL error (network issue?): {e.reason}")
-        return False
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(html_body, 'html'))
+
+        port = int(smtp_port_str)
+        if port == 465:
+            server = smtplib.SMTP_SSL(smtp_server, port, timeout=15)
+        else:
+            server = smtplib.SMTP(smtp_server, port, timeout=15)
+            server.starttls()
+        
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(smtp_user, to_email, msg.as_string())
+        server.quit()
+        print(f"[SMTP] ✅ Email sent successfully via SMTP to {to_email}")
+        return True
     except Exception as e:
-        import traceback
-        print(f"[RESEND] ❌ Unexpected error: {repr(e)}")
-        traceback.print_exc()
+        print(f"[SMTP] ❌ Failed to send email via SMTP to {to_email}: {repr(e)}")
         return False
+
+def send_email_hub(to_email: str, subject: str, html_body: str) -> bool:
+    """Sends email using Resend (with multiple domain fallbacks), falling back to SMTP if it fails."""
+    # 1. Try Resend if API key is provided
+    if os.getenv("RESEND_API_KEY"):
+        resend_success = _resend_send(to_email, subject, html_body)
+        if resend_success:
+            return True
+    
+    # 2. Try SMTP fallback
+    return _smtp_send(to_email, subject, html_body)
 
 
 def send_otp_email(email: str, otp: str) -> bool:
@@ -229,7 +280,7 @@ def send_otp_email(email: str, otp: str) -> bool:
     </body>
     </html>
     """
-    return _resend_send(email, subject, html_body)
+    return send_email_hub(email, subject, html_body)
 
 
 def send_inquiry_email(inquiry_data: dict) -> bool:
@@ -263,7 +314,7 @@ def send_inquiry_email(inquiry_data: dict) -> bool:
       </body>
     </html>
     """
-    return _resend_send("heatonetechnology@gmail.com", subject, html_body)
+    return send_email_hub("heatonetechnology@gmail.com", subject, html_body)
 
 
 # 4. Startup event to seed the database if empty
