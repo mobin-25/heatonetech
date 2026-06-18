@@ -370,6 +370,97 @@ async def test_openapi():
         "redoc_url": app.redoc_url
     }
 
+@app.get("/api/test-email")
+async def test_email_endpoint():
+    res = []
+    
+    # Run test
+    api_key = os.getenv("RESEND_API_KEY")
+    res.append(f"RESEND_API_KEY configured: {bool(api_key)}")
+    
+    subject = "Test Email - Heat One Technology"
+    html_body = "<h3>This is a test email to verify your email configurations.</h3>"
+    to_email = "heatonetechnology@gmail.com"
+    
+    senders = [
+        "Heat One Technology <noreply@send.heatonetechnology.live>",
+        "Heat One Technology <noreply@heatonetechnology.live>",
+        "Heat One Technology <onboarding@resend.dev>"
+    ]
+    
+    resend_worked = False
+    if api_key:
+        for sender in senders:
+            res.append(f"Trying Resend with sender '{sender}' to '{to_email}'...")
+            payload = json.dumps({
+                "from": sender,
+                "to": [to_email],
+                "subject": subject,
+                "html": html_body
+            }).encode("utf-8")
+
+            req = urllib.request.Request(
+                "https://api.resend.com/emails",
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                },
+                method="POST"
+            )
+
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    result = json.loads(response.read())
+                    res.append(f"✅ Resend Success with sender '{sender}'. ID: {result.get('id')}")
+                    resend_worked = True
+                    break
+            except urllib.error.HTTPError as e:
+                body = e.read().decode()
+                res.append(f"❌ Resend HTTPError {e.code} for sender '{sender}': {body}")
+            except Exception as e:
+                res.append(f"❌ Resend Unexpected Error for sender '{sender}': {str(e)}")
+    else:
+        res.append("Skipping Resend (no API key)")
+
+    if resend_worked:
+        return {"status": "success", "logs": res}
+
+    # Try SMTP
+    res.append("Trying SMTP fallback...")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_pass = os.getenv("SMTP_PASSWORD")
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port_str = os.getenv("SMTP_PORT", "587")
+    
+    if smtp_user and smtp_pass:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(html_body, 'html'))
+
+            port = int(smtp_port_str)
+            if port == 465:
+                server = smtplib.SMTP_SSL(smtp_server, port, timeout=15)
+            else:
+                server = smtplib.SMTP(smtp_server, port, timeout=15)
+                server.starttls()
+            
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+            server.quit()
+            res.append("✅ SMTP Success")
+            return {"status": "success", "logs": res}
+        except Exception as e:
+            res.append(f"❌ SMTP Error: {str(e)}")
+    else:
+        res.append("Skipping SMTP (no credentials)")
+
+    return {"status": "failed", "logs": res}
+
 @app.get("/api/products")
 async def get_all_products():
     products = []
