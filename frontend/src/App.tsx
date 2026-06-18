@@ -20,6 +20,11 @@ export default function App() {
   // Land on HomeView by default, which is the rebranded Company Profile details
   const [activeTab, setActiveTab ] = useState<TabType>('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  // Scroll to top of the page on tab/page change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
   
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<{ email: string } | null>(() => {

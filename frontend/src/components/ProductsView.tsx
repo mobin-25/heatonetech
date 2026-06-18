@@ -468,6 +468,7 @@ export default function ProductsView({
   useEffect(() => {
     setSelectedPhotoOverride(null);
     setLightboxImage(null);
+    window.scrollTo(0, 0);
   }, [viewedProductRaw?.id]);
 
   useEffect(() => {
