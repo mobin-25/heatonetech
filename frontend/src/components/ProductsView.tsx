@@ -1155,32 +1155,43 @@ export default function ProductsView({
                         : 'bg-[#0b0c0f] border-zinc-900 hover:border-zinc-800/80 hover:bg-[#0d0e12]'
                     }`}
                   >
-                    <div className="flex-1" id={`card-text-wrap-${product.id}`}>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[10px] font-mono uppercase bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
-                          {product.category?.replace('-', ' ') || ''}
-                        </span>
-                        {product.specifications?.wavelength && (
-                          <span className="text-[10px] font-mono text-orange-400">
-                            {product.specifications?.wavelength}
-                          </span>
-                        )}
-                        {/* New API Tag Indicator */}
-                        {product.subtitle === "LIVE FROM MONGODB" && (
-                          <span className="text-[10px] font-mono text-green-400 border border-green-500/30 bg-green-900/20 px-2 py-0.5 rounded">
-                            API SYNCED
-                          </span>
+                    <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-4 min-w-0">
+                      {/* Product Thumbnail */}
+                      <div className="w-24 h-20 bg-zinc-950 rounded-lg border border-zinc-900 overflow-hidden flex items-center justify-center shrink-0">
+                        {product.imageUrl ? (
+                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <ImageIcon className="w-6 h-6 text-zinc-750" />
                         )}
                       </div>
-                      
-                      <h3 className="text-base md:text-lg font-semibold text-white tracking-wide">{product.name}</h3>
-                      <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{product.description}</p>
-                      
-                      {/* Compact technical details directly on card */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 pt-3 border-t border-zinc-900/60 font-mono text-[10px] text-zinc-500">
-                        <div>POWER: <span className="text-zinc-300 font-semibold">{product.specifications?.power || ''}</span></div>
-                        <span>•</span>
-                        <div>VOLT: <span className="text-zinc-300 font-semibold">{product.specifications?.voltage || ''}</span></div>
+
+                      <div className="flex-1 min-w-0" id={`card-text-wrap-${product.id}`}>
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-zinc-400">
+                            {product.category?.replace('-', ' ') || ''}
+                          </span>
+                          {product.specifications?.wavelength && (
+                            <span className="text-[10px] font-mono text-orange-400">
+                              {product.specifications?.wavelength}
+                            </span>
+                          )}
+                          {/* New API Tag Indicator */}
+                          {product.subtitle === "LIVE FROM MONGODB" && (
+                            <span className="text-[10px] font-mono text-green-400 border border-green-500/30 bg-green-900/20 px-2 py-0.5 rounded">
+                              API SYNCED
+                            </span>
+                          )}
+                        </div>
+                        
+                        <h3 className="text-base md:text-lg font-semibold text-white tracking-wide truncate">{product.name}</h3>
+                        <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{product.description}</p>
+                        
+                        {/* Compact technical details directly on card */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 pt-3 border-t border-zinc-900/60 font-mono text-[10px] text-zinc-500">
+                          <div>POWER: <span className="text-zinc-300 font-semibold">{product.specifications?.power || ''}</span></div>
+                          <span>•</span>
+                          <div>VOLT: <span className="text-zinc-300 font-semibold">{product.specifications?.voltage || ''}</span></div>
+                        </div>
                       </div>
                     </div>
 

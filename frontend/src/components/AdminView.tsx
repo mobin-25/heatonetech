@@ -851,11 +851,19 @@ export default function AdminView({
                           <div className="space-y-2">
                             <span className="text-[10px] font-mono text-zinc-500 uppercase block">ATTACHED HEAT SPECIFICATION INQUIRIES</span>
                             <div className="flex flex-wrap gap-2">
-                              {selectedInquiry.products.map((p, idx) => (
-                                <span key={idx} className="bg-orange-950/20 border border-orange-500/20 text-orange-400 px-3 py-1 rounded text-xs font-medium font-sans">
-                                  🔥 {p}
-                                </span>
-                              ))}
+                              {selectedInquiry.products.map((p, idx) => {
+                                const matchedProduct = products.find(prod => prod.name === p || prod.id === p);
+                                return (
+                                  <span key={idx} className="bg-orange-950/20 border border-orange-500/20 text-orange-400 px-3 py-1 rounded text-xs font-medium font-sans flex items-center gap-2">
+                                    {matchedProduct?.imageUrl ? (
+                                      <img src={matchedProduct.imageUrl} alt={p} className="w-5 h-5 object-cover rounded" referrerPolicy="no-referrer" />
+                                    ) : (
+                                      <span>🔥</span>
+                                    )}
+                                    <span>{p}</span>
+                                  </span>
+                                );
+                              })}
                             </div>
                           </div>
                         )}
