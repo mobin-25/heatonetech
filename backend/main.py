@@ -36,7 +36,9 @@ app.add_middleware(
     allow_origins=[
         "https://heatonetechnology.live",
         "https://www.heatonetechnology.live",
-        "https://heatonetech-6kg5.vercel.app"
+        "https://heatonetech-6kg5.vercel.app",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -66,6 +68,7 @@ class ProductModel(BaseModel):
     applications: List[str] = []
     imageUrl: Optional[str] = ""
     additionalImages: Optional[List[str]] = []
+    order: Optional[int] = 0
 
 class InquiryModel(BaseModel):
     id: Optional[str] = None
@@ -270,12 +273,26 @@ async def seed_db():
     if count == 0:
         print("Seeding MongoDB database with initial catalog products...")
         seeded = []
-        for p in SEED_PRODUCTS:
+        for index, p in enumerate(SEED_PRODUCTS):
             p_dict = dict(p)
             p_dict["_id"] = p_dict["id"]
+            p_dict["order"] = index
             seeded.append(p_dict)
         await product_collection.insert_many(seeded)
         print(f"Successfully seeded {len(SEED_PRODUCTS)} products.")
+    else:
+        missing_order_count = await product_collection.count_documents({"order": {"$exists": False}})
+        if missing_order_count > 0:
+            print(f"Migrating {missing_order_count} products to add 'order' field...")
+            cursor = product_collection.find({})
+            index = 0
+            async for doc in cursor:
+                await product_collection.update_one(
+                    {"_id": doc["_id"]},
+                    {"$set": {"order": doc.get("order", index)}}
+                )
+                index += 1
+            print("Successfully migrated product orders.")
 
     admin_count = await admin_collection.count_documents({})
     if admin_count == 0:
@@ -304,7 +321,7 @@ async def test_openapi():
 @app.get("/api/products")
 async def get_all_products():
     products = []
-    cursor = product_collection.find({})
+    cursor = product_collection.find({}).sort("order", 1)
     async for document in cursor:
         products.append(serialize_doc(document))
     return {"products": products}
@@ -321,8 +338,18 @@ async def create_product(product: ProductModel):
         if "_id" in product_dict:
             existing = await product_collection.find_one({"_id": product_dict["_id"]})
             if existing:
+                if "order" in existing and (product_dict.get("order") is None or product_dict.get("order") == 0):
+                    product_dict["order"] = existing["order"]
                 await product_collection.replace_one({"_id": product_dict["_id"]}, product_dict)
                 return {"message": "Product updated successfully", "id": product_dict["_id"]}
+
+        if product_dict.get("order") is None or product_dict.get("order") == 0:
+            cursor = product_collection.find({}).sort("order", -1).limit(1)
+            max_order_doc = await cursor.to_list(1)
+            if max_order_doc:
+                product_dict["order"] = max_order_doc[0].get("order", 0) + 1
+            else:
+                product_dict["order"] = 0
 
         new_product = await product_collection.insert_one(product_dict)
         return {"message": "Product added successfully", "id": str(new_product.inserted_id)}
@@ -335,11 +362,37 @@ async def update_product(product_id: str, product: ProductModel):
     product_dict.pop("id", None)
     product_dict["_id"] = product_id
     try:
-        result = await product_collection.replace_one({"_id": product_id}, product_dict)
-        if result.matched_count == 0:
+        existing = await product_collection.find_one({"_id": product_id})
+        if existing:
+            if "order" in existing and (product_dict.get("order") is None or product_dict.get("order") == 0):
+                product_dict["order"] = existing["order"]
+            await product_collection.replace_one({"_id": product_id}, product_dict)
+            return {"message": "Product updated successfully", "id": product_id}
+        else:
+            if product_dict.get("order") is None or product_dict.get("order") == 0:
+                cursor = product_collection.find({}).sort("order", -1).limit(1)
+                max_order_doc = await cursor.to_list(1)
+                if max_order_doc:
+                    product_dict["order"] = max_order_doc[0].get("order", 0) + 1
+                else:
+                    product_dict["order"] = 0
             await product_collection.insert_one(product_dict)
             return {"message": "Product created successfully", "id": product_id}
-        return {"message": "Product updated successfully", "id": product_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class ReorderPayload(BaseModel):
+    product_ids: List[str]
+
+@app.post("/api/products/reorder")
+async def reorder_products(payload: ReorderPayload):
+    try:
+        for index, product_id in enumerate(payload.product_ids):
+            await product_collection.update_one(
+                {"_id": product_id},
+                {"$set": {"order": index}}
+            )
+        return {"message": "Products reordered successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -358,9 +411,10 @@ async def reset_products_catalog():
     try:
         await product_collection.delete_many({})
         seeded = []
-        for p in SEED_PRODUCTS:
+        for index, p in enumerate(SEED_PRODUCTS):
             p_dict = dict(p)
             p_dict["_id"] = p_dict["id"]
+            p_dict["order"] = index
             seeded.append(p_dict)
         await product_collection.insert_many(seeded)
         return {"message": "Catalog reset to default"}

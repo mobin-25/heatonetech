@@ -290,6 +290,26 @@ export default function App() {
     }
   };
 
+  const handleReorderProducts = async (productIds: string[]) => {
+    try {
+      const res = await fetch(getApiUrl("/api/products/reorder"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_ids: productIds }),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        setStorageError(null);
+      } else {
+        setStorageError("Failed to save new product arrangement.");
+      }
+    } catch (err) {
+      console.error("Error reordering products:", err);
+      setStorageError("Database connection error.");
+    }
+  };
+
+
   // Cart operations
   const handleAddProductToQuote = (product: Product) => {
     if (!quoteCart.some((item: Product) => item.id === product.id)) {
@@ -378,6 +398,7 @@ export default function App() {
             onUpdateProduct={handleUpdateProduct}
             onDeleteProduct={handleDeleteProduct}
             onResetProducts={handleResetProducts}
+            onReorderProducts={handleReorderProducts}
             onUpdateProductDetail={handleUpdateProductDetail}
             storageError={storageError}
             onClearStorageError={handleClearStorageError}

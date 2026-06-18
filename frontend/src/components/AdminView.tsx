@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Product, Inquiry } from '../types';
 import { 
   Database, Users, Flame, Settings, Trash2, Edit3, PlusCircle, CheckCircle, Upload, 
-  Clock, ClipboardList, RefreshCw, FileText, Search, Plus, X, ChevronRight, 
+  Clock, ClipboardList, RefreshCw, FileText, Search, Plus, X, ChevronRight, ChevronUp, ChevronDown, 
   Image as ImageIcon, Zap, Check, AlertTriangle, ArrowRight, ShieldCheck, Filter, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -19,6 +19,7 @@ interface AdminViewProps {
   onResetProducts: () => void;
   onLogout: () => void;
   onUpdateProductDetail?: (productId: string, updatedProduct: Product) => void;
+  onReorderProducts?: (productIds: string[]) => Promise<void>;
   storageError?: string | null;
   onClearStorageError?: () => void;
   adminUsername?: string;
@@ -45,6 +46,7 @@ export default function AdminView({
   onResetProducts,
   onLogout,
   onUpdateProductDetail,
+  onReorderProducts,
   storageError = null,
   onClearStorageError,
   adminUsername,
@@ -54,6 +56,51 @@ export default function AdminView({
   const [userSearch, setUserSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multiFileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [reorderList, setReorderList] = useState<Product[]>([]);
+  const [isSavingReorder, setIsSavingReorder] = useState(false);
+
+  const startReordering = () => {
+    setIsReorderMode(true);
+    setReorderList([...products]);
+  };
+
+  const cancelReordering = () => {
+    setIsReorderMode(false);
+  };
+
+  const saveReordering = async () => {
+    if (onReorderProducts) {
+      setIsSavingReorder(true);
+      try {
+        await onReorderProducts(reorderList.map(p => p.id));
+      } catch (err) {
+        console.error("Reorder failed", err);
+      } finally {
+        setIsSavingReorder(false);
+      }
+    }
+    setIsReorderMode(false);
+  };
+
+  const moveProductUp = (index: number) => {
+    if (index === 0) return;
+    const newList = [...reorderList];
+    const temp = newList[index];
+    newList[index] = newList[index - 1];
+    newList[index - 1] = temp;
+    setReorderList(newList);
+  };
+
+  const moveProductDown = (index: number) => {
+    if (index === reorderList.length - 1) return;
+    const newList = [...reorderList];
+    const temp = newList[index];
+    newList[index] = newList[index + 1];
+    newList[index + 1] = temp;
+    setReorderList(newList);
+  };
 
   const handleLocalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -412,7 +459,7 @@ export default function AdminView({
   };
 
   // Combine default and custom lists for visualization list in Admin Tab B
-  const combinedListForAdmin = products.map(p => {
+  const combinedListForAdmin = (isReorderMode ? reorderList : products).map(p => {
     const isStatic = p.id.startsWith('brochure-') || ['shortwave-ir', 'quartz-tubes', 'twin-tube-ir', 'ceramic-panels', 'industrial-ovens'].includes(p.id);
     return { ...p, isStatic };
   });
@@ -888,34 +935,77 @@ export default function AdminView({
             >
               {/* Toolbar */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0a0b0d] p-4 border border-zinc-900 rounded-lg">
-                <div className="text-left">
-                  <h3 className="text-xs font-mono font-bold text-zinc-400 uppercase">MANAGE HEATING SOLUTIONS CATALOG</h3>
-                  <p className="text-[11px] text-zinc-650">Verify core factory-loaded models or insert dynamic ones instantly.</p>
-                </div>
+                {isReorderMode ? (
+                  <div className="text-left">
+                    <h3 className="text-xs font-mono font-bold text-orange-400 uppercase flex items-center gap-1.5 animate-pulse">
+                      <Flame className="w-4 h-4 text-orange-500" />
+                      <span>ARRANGE PRODUCT PORTFOLIO ORDER</span>
+                    </h3>
+                    <p className="text-[11px] text-zinc-500 font-mono">Use Up/Down buttons on the right of each product row to arrange sequence, then save.</p>
+                  </div>
+                ) : (
+                  <div className="text-left">
+                    <h3 className="text-xs font-mono font-bold text-zinc-400 uppercase">MANAGE HEATING SOLUTIONS CATALOG</h3>
+                    <p className="text-[11px] text-zinc-650">Verify core factory-loaded models or insert dynamic ones instantly.</p>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      showConfirm(
-                        'Reset Catalog to Presets',
-                        'Are you sure you want to reset your active heating catalog? This will delete all current products and restore the original 18 default catalog elements.',
-                        () => {
-                          onResetProducts();
-                        },
-                        { confirmText: 'Yes, Reset', isDestructive: true }
-                      );
-                    }}
-                    className="px-4 py-2.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-400 hover:text-white rounded-lg transition-all cursor-pointer"
-                  >
-                    Reset Catalog to Presets
-                  </button>
-                  <button
-                    onClick={openFormForNew}
-                    className="flex items-center gap-1.5 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer hover:scale-[1.02]"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Create New Product</span>
-                  </button>
+                  {isReorderMode ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={cancelReordering}
+                        disabled={isSavingReorder}
+                        className="px-4 py-2.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-400 hover:text-white rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={saveReordering}
+                        disabled={isSavingReorder}
+                        className="flex items-center gap-1.5 px-5 py-2.5 bg-orange-600 hover:bg-orange-550 text-xs font-bold text-white uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer hover:scale-[1.02] disabled:opacity-50"
+                      >
+                        {isSavingReorder ? 'Saving...' : 'Save Arrangement'}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          showConfirm(
+                            'Reset Catalog to Presets',
+                            'Are you sure you want to reset your active heating catalog? This will delete all current products and restore the original 18 default catalog elements.',
+                            () => {
+                              onResetProducts();
+                            },
+                            { confirmText: 'Yes, Reset', isDestructive: true }
+                          );
+                        }}
+                        className="px-4 py-2.5 bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-400 hover:text-white rounded-lg transition-all cursor-pointer"
+                      >
+                        Reset Catalog to Presets
+                      </button>
+                      <button
+                        type="button"
+                        onClick={startReordering}
+                        className="flex items-center gap-1.5 px-4 py-2.5 bg-zinc-950 border border-zinc-800 hover:border-orange-500/50 text-xs font-mono text-zinc-400 hover:text-white rounded-lg transition-all cursor-pointer"
+                      >
+                        <Settings className="w-3.5 h-3.5 text-orange-500" />
+                        <span>Arrange Catalog</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={openFormForNew}
+                        className="flex items-center gap-1.5 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer hover:scale-[1.02]"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Create New Product</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -930,11 +1020,15 @@ export default function AdminView({
                 </div>
 
                 <div className="divide-y divide-zinc-900">
-                  {combinedListForAdmin.map((prod) => (
+                  {combinedListForAdmin.map((prod, index) => (
                     <div
                       key={prod.id}
-                      onClick={() => openFormForEdit(prod)}
-                      className="grid grid-cols-12 p-4 items-center gap-4 text-left hover:bg-zinc-900/20 hover:border-orange-500/10 border-l border-transparent hover:border-orange-500 transition-all group cursor-pointer"
+                      onClick={() => !isReorderMode && openFormForEdit(prod)}
+                      className={`grid grid-cols-12 p-4 items-center gap-4 text-left border-l border-transparent transition-all group ${
+                        isReorderMode 
+                          ? 'cursor-default select-none' 
+                          : 'hover:bg-zinc-900/20 hover:border-orange-500/10 hover:border-orange-500 cursor-pointer'
+                      }`}
                     >
                       {/* DETAILS */}
                       <div className="col-span-6 md:col-span-5 flex items-center gap-3">
@@ -946,7 +1040,7 @@ export default function AdminView({
                           )}
                         </div>
                         <div className="truncate">
-                          <h4 className="text-xs font-bold text-white group-hover:text-orange-500 transition-colors truncate">{prod.name}</h4>
+                          <h4 className={`text-xs font-bold transition-colors truncate ${isReorderMode ? 'text-white' : 'text-white group-hover:text-orange-500'}`}>{prod.name}</h4>
                           <span className="text-[10px] text-zinc-500 font-mono block truncate">{prod.subtitle}</span>
                         </div>
                       </div>
@@ -979,26 +1073,59 @@ export default function AdminView({
 
                       {/* ACTIONS ELEMENT */}
                       <div className="col-span-3 md:col-span-1 text-right flex items-center justify-end gap-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openFormForEdit(prod);
-                          }}
-                          className="p-2 text-orange-400 hover:text-white hover:bg-orange-950/20 border border-orange-500/20 hover:border-orange-500 rounded transition-all cursor-pointer"
-                          title="Edit product info, specs, & photos"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProductClick(prod.id, prod.name);
-                          }}
-                          className="p-2 text-red-500 hover:text-red-400 hover:bg-red-950/10 border border-red-900/30 rounded transition-all cursor-pointer"
-                          title="Delete from catalog"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {isReorderMode ? (
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveProductUp(index);
+                              }}
+                              className="p-1.5 text-zinc-450 hover:text-orange-500 hover:bg-orange-950/20 border border-zinc-800 hover:border-orange-500/30 rounded transition-all cursor-pointer disabled:opacity-20 disabled:hover:text-zinc-450 disabled:hover:bg-transparent disabled:hover:border-zinc-800 disabled:cursor-not-allowed"
+                              title="Move Product Up"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === combinedListForAdmin.length - 1}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                moveProductDown(index);
+                              }}
+                              className="p-1.5 text-zinc-450 hover:text-orange-500 hover:bg-orange-950/20 border border-zinc-800 hover:border-orange-500/30 rounded transition-all cursor-pointer disabled:opacity-20 disabled:hover:text-zinc-450 disabled:hover:bg-transparent disabled:hover:border-zinc-800 disabled:cursor-not-allowed"
+                              title="Move Product Down"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openFormForEdit(prod);
+                              }}
+                              className="p-2 text-orange-400 hover:text-white hover:bg-orange-950/20 border border-orange-500/20 hover:border-orange-500 rounded transition-all cursor-pointer"
+                              title="Edit product info, specs, & photos"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteProductClick(prod.id, prod.name);
+                              }}
+                              className="p-2 text-red-500 hover:text-red-400 hover:bg-red-950/10 border border-red-900/30 rounded transition-all cursor-pointer"
+                              title="Delete from catalog"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}

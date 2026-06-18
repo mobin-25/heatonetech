@@ -22,6 +22,7 @@ export interface Product {
   applications: string[];
   imageUrl?: string;
   additionalImages?: string[];
+  order?: number;
 }
 
 export interface CompanyFact {
