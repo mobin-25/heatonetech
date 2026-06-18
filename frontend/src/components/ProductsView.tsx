@@ -437,6 +437,21 @@ export default function ProductsView({
   const [selectedProductDetailsRaw, setSelectedProductDetails] = useState<Product | null>(null);
   const [viewedProductRaw, setViewedProduct] = useState<Product | null>(null);
 
+  const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
+  const catalogDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (catalogDropdownRef.current && !catalogDropdownRef.current.contains(event.target as Node)) {
+        setIsCatalogDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Automatically select the first product when products finish loading
   useEffect(() => {
     if (!selectedProductDetailsRaw && products.length > 0) {
@@ -918,16 +933,63 @@ export default function ProductsView({
             <div className="h-0.5 w-16 bg-orange-500 mt-3" />
           </div>
 
-          {/* Search bar inside product view */}
-          <div className="relative w-full md:w-80" id="product-search-input-wrap">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <input
-              type="text"
-              placeholder="Search specifications, materials..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 focus:border-orange-500 focus:outline-none rounded-lg py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 transition-colors"
-            />
+          {/* Catalog & Search container */}
+          <div className="flex flex-col items-end gap-3 w-full md:w-80" id="products-controls-wrap">
+            {/* Catalog Dropdown */}
+            <div className="relative w-full text-right" ref={catalogDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsCatalogDropdownOpen(!isCatalogDropdownOpen)}
+                className="w-full inline-flex items-center justify-between gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-mono text-xs font-bold uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer hover:scale-[1.02]"
+              >
+                <span>Catalog</span>
+                <span className="text-[10px]">
+                  {isCatalogDropdownOpen ? '▲' : '▼'}
+                </span>
+              </button>
+              
+              <AnimatePresence>
+                {isCatalogDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="absolute right-0 mt-2 w-full bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-50 p-2 space-y-1 text-left"
+                  >
+                    <a
+                      href="https://drive.google.com/file/d/1Prl5BShhjV2wQOBRXgkmdXEB7JmmWgxP/view?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsCatalogDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-zinc-900 text-xs text-zinc-350 hover:text-white transition-all font-sans font-medium"
+                    >
+                      ⚡ IR Heater Catalog
+                    </a>
+                    <a
+                      href="https://drive.google.com/file/d/1y6uut792pNHCHZpfcDIxvFh-1pZp-i_b/view?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsCatalogDropdownOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-zinc-900 text-xs text-zinc-350 hover:text-white transition-all font-sans font-medium"
+                    >
+                      🔥 Ceramic Band Heater Catalog
+                    </a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Search bar inside product view */}
+            <div className="relative w-full" id="product-search-input-wrap">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <input
+                type="text"
+                placeholder="Search specifications, materials..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 focus:border-orange-500 focus:outline-none rounded-lg py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 transition-colors"
+              />
+            </div>
           </div>
         </div>
 
