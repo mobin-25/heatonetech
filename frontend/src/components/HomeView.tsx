@@ -121,7 +121,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
 
       {/* 1. HERO BANNER */}
       <div
-        className={`relative w-full h-[360px] md:h-[480px] flex items-center justify-center overflow-hidden border-b border-orange-500/20 ${
+        className={`relative w-full min-h-[520px] md:min-h-[660px] py-12 md:py-20 flex items-center justify-center overflow-hidden border-b border-orange-500/20 ${
           theme === 'light' ? 'bg-slate-100' : 'bg-[#060608]'
         }`}
         id="hero-banner-wrap"
