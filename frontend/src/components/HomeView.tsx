@@ -75,132 +75,6 @@ const PILL_LABELS: Record<string, string> = {
   'brochure-quartz-tubes':      'Quartz Glass Tubes',
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.1,
-    }
-  }
-};
-
-const letterVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.35,
-      ease: [0.25, 0.1, 0.25, 1] as const,
-    }
-  }
-};
-
-const HeroBrand = React.memo(({ theme }: { theme: 'light' | 'dark' }) => {
-  return (
-    <>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex items-center justify-center gap-5 md:gap-7 select-none"
-        role="heading"
-        aria-level={1}
-        id="banner-title"
-      >
-        {/* Logo — white logo for light mode, dark logo for dark mode, staggered as first child */}
-        <motion.div
-          variants={letterVariants}
-          className="h-16 w-16 md:h-28 md:w-28 shrink-0 flex items-center justify-center bg-transparent"
-        >
-          <img
-            src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
-            alt="Heat One Technology Logo"
-            className="w-full h-full object-contain scale-[1.18]"
-            style={{
-              filter: theme === 'light'
-                ? 'drop-shadow(0 2px 8px rgba(234,88,12,0.25))'
-                : 'drop-shadow(0 0 14px rgba(234,88,12,0.55))'
-            }}
-            draggable={false}
-            loading="eager"
-          />
-        </motion.div>
-
-        {/* HEAT ONE / TECHNOLOGY text */}
-        <div className="flex flex-col items-start">
-          <div className={`flex items-center gap-x-3 text-4xl md:text-7xl font-display font-bold uppercase tracking-wider ${
-            theme === 'light' ? 'drop-shadow-[0_2px_6px_rgba(255,255,255,0.9)]' : 'drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]'
-          }`}>
-            <span className={`inline-block whitespace-nowrap ${theme === 'light' ? 'text-[#0f172a]' : 'text-white'}`}>
-              {"HEAT".split("").map((char, cIdx) => (
-                <motion.span
-                  key={`heat-${cIdx}`}
-                  variants={letterVariants}
-                  className="inline-block hover:text-orange-500 transition-colors duration-150 cursor-default"
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </span>
-            <span className="inline-block whitespace-nowrap text-orange-500">
-              {"ONE".split("").map((char, cIdx) => (
-                <motion.span
-                  key={`one-${cIdx}`}
-                  variants={letterVariants}
-                  className="inline-block hover:text-white transition-colors duration-150 cursor-default"
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </span>
-          </div>
-
-          <div className={`text-lg md:text-4xl font-display uppercase tracking-[0.35em] md:tracking-[0.5em] font-semibold mt-0.5 ${
-            theme === 'light'
-              ? 'text-slate-800 drop-shadow-[0_1px_4px_rgba(255,255,255,0.9)]'
-              : 'text-[#8C827A]'
-          }`}>
-            {"TECHNOLOGY".split("").map((char, cIdx) => (
-              <motion.span
-                key={`tech-${cIdx}`}
-                variants={letterVariants}
-                className="inline-block hover:text-orange-400 transition-colors duration-150 cursor-default"
-              >
-                {char}
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Underline bar */}
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: 140 }}
-        transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-        className="h-1 bg-orange-500 mx-auto mt-4 rounded-full shadow-[0_0_8px_#ea580c]"
-        id="banner-underline"
-      />
-
-      {/* Tagline */}
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.65 }}
-        className="text-orange-500 font-mono text-xs uppercase tracking-[0.25em] mt-3 flex items-center justify-center gap-2"
-      >
-        <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-        <span>Industrial Heating Solutions Products</span>
-      </motion.p>
-    </>
-  );
-});
-
-HeroBrand.displayName = 'HeroBrand';
-
 export default function HomeView({ theme = 'dark', onNavigateToProduct, products = [] }: HomeViewProps) {
   const [activeFactSet, setActiveFactSet] = useState<'primary' | 'operational'>('primary');
   const [selectedFact, setSelectedFact] = useState<CompanyFact | null>(COMPANY_FACTS[1]);
@@ -299,9 +173,87 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
           </div>
         )}
 
-        {/* Hero text — staggered container entry */}
+        {/* Hero text — staggered entry */}
         <div className="relative z-20 text-center px-4 w-full max-w-4xl" id="banner-text-overlay">
-          <HeroBrand theme={theme} />
+          <div
+            className="flex items-center justify-center gap-5 md:gap-7 select-none"
+            role="heading"
+            aria-level={1}
+            id="banner-title"
+          >
+            {/* Logo — white logo for light mode, dark logo for dark mode */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="h-16 w-16 md:h-28 md:w-28 shrink-0 flex items-center justify-center bg-transparent"
+            >
+              <img
+                src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
+                alt="Heat One Technology Logo"
+                className="w-full h-full object-contain scale-[1.18]"
+                style={{
+                  filter: theme === 'light'
+                    ? 'drop-shadow(0 2px 8px rgba(234,88,12,0.25))'
+                    : 'drop-shadow(0 0 14px rgba(234,88,12,0.55))'
+                }}
+                draggable={false}
+                loading="eager"
+              />
+            </motion.div>
+
+            {/* HEAT ONE / TECHNOLOGY text */}
+            <div className="flex flex-col items-start">
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.12, ease: "easeOut" }}
+                className={`flex items-center gap-x-3 text-4xl md:text-7xl font-display font-bold uppercase tracking-wider ${
+                  theme === 'light' ? 'drop-shadow-[0_2px_6px_rgba(255,255,255,0.9)]' : 'drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]'
+                }`}
+              >
+                <span className={`inline-block whitespace-nowrap ${theme === 'light' ? 'text-[#0f172a]' : 'text-white'}`}>
+                  HEAT
+                </span>
+                <span className="inline-block whitespace-nowrap text-orange-500">
+                  ONE
+                </span>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.22, ease: "easeOut" }}
+                className={`text-lg md:text-4xl font-display uppercase tracking-[0.35em] md:tracking-[0.5em] font-semibold mt-0.5 ${
+                  theme === 'light'
+                    ? 'text-slate-800 drop-shadow-[0_1px_4px_rgba(255,255,255,0.9)]'
+                    : 'text-[#8C827A]'
+                }`}
+              >
+                TECHNOLOGY
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Underline bar */}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: 140 }}
+            transition={{ duration: 0.7, delay: 0.32, ease: "easeOut" }}
+            className="h-1 bg-orange-500 mx-auto mt-4 rounded-full shadow-[0_0_8px_#ea580c]"
+            id="banner-underline"
+          />
+
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.42, ease: "easeOut" }}
+            className="text-orange-500 font-mono text-xs uppercase tracking-[0.25em] mt-3 flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+            <span>Industrial Heating Solutions Products</span>
+          </motion.p>
 
           {/* Product pills */}
           <motion.div
