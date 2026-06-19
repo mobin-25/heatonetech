@@ -75,6 +75,29 @@ const PILL_LABELS: Record<string, string> = {
   'brochure-quartz-tubes':      'Quartz Glass Tubes',
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.1,
+    }
+  }
+};
+
+const letterVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.35,
+      ease: [0.25, 0.1, 0.25, 1] as const,
+    }
+  }
+};
+
 export default function HomeView({ theme = 'dark', onNavigateToProduct, products = [] }: HomeViewProps) {
   const [activeFactSet, setActiveFactSet] = useState<'primary' | 'operational'>('primary');
   const [selectedFact, setSelectedFact] = useState<CompanyFact | null>(COMPANY_FACTS[1]);
@@ -173,16 +196,22 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
           </div>
         )}
 
-        {/* Hero text — single fade-in instead of per-letter spring animations */}
+        {/* Hero text — staggered container entry */}
         <div className="relative z-20 text-center px-4 w-full max-w-4xl" id="banner-text-overlay">
-          <div
-            className="flex items-center justify-center gap-5 md:gap-7 select-none animate-fadeIn"
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex items-center justify-center gap-5 md:gap-7 select-none"
             role="heading"
             aria-level={1}
             id="banner-title"
           >
-            {/* Logo — white logo for light mode, dark logo for dark mode */}
-            <div className="h-16 w-16 md:h-28 md:w-28 shrink-0 flex items-center justify-center bg-transparent">
+            {/* Logo — white logo for light mode, dark logo for dark mode, staggered as first child */}
+            <motion.div
+              variants={letterVariants}
+              className="h-16 w-16 md:h-28 md:w-28 shrink-0 flex items-center justify-center bg-transparent"
+            >
               <img
                 src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
                 alt="Heat One Technology Logo"
@@ -195,7 +224,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                 draggable={false}
                 loading="eager"
               />
-            </div>
+            </motion.div>
 
             {/* HEAT ONE / TECHNOLOGY text */}
             <div className="flex flex-col items-start">
@@ -203,10 +232,26 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                 theme === 'light' ? 'drop-shadow-[0_2px_6px_rgba(255,255,255,0.9)]' : 'drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]'
               }`}>
                 <span className={`inline-block whitespace-nowrap ${theme === 'light' ? 'text-[#0f172a]' : 'text-white'}`}>
-                  HEAT
+                  {"HEAT".split("").map((char, cIdx) => (
+                    <motion.span
+                      key={`heat-${cIdx}`}
+                      variants={letterVariants}
+                      className="inline-block hover:text-orange-500 transition-colors duration-150 cursor-default"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
                 </span>
                 <span className="inline-block whitespace-nowrap text-orange-500">
-                  ONE
+                  {"ONE".split("").map((char, cIdx) => (
+                    <motion.span
+                      key={`one-${cIdx}`}
+                      variants={letterVariants}
+                      className="inline-block hover:text-white transition-colors duration-150 cursor-default"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
                 </span>
               </div>
 
@@ -215,22 +260,44 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                   ? 'text-slate-800 drop-shadow-[0_1px_4px_rgba(255,255,255,0.9)]'
                   : 'text-[#8C827A]'
               }`}>
-                TECHNOLOGY
+                {"TECHNOLOGY".split("").map((char, cIdx) => (
+                  <motion.span
+                    key={`tech-${cIdx}`}
+                    variants={letterVariants}
+                    className="inline-block hover:text-orange-400 transition-colors duration-150 cursor-default"
+                  >
+                    {char}
+                  </motion.span>
+                ))}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Underline bar */}
-          <div className="h-1 bg-orange-500 mx-auto mt-4 rounded-full" style={{ width: 140 }} id="banner-underline" />
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: 140 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="h-1 bg-orange-500 mx-auto mt-4 rounded-full shadow-[0_0_8px_#ea580c]"
+            id="banner-underline"
+          />
 
           {/* Tagline */}
-          <p className="text-orange-500 font-mono text-xs uppercase tracking-[0.25em] mt-3 flex items-center justify-center gap-2">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.65 }}
+            className="text-orange-500 font-mono text-xs uppercase tracking-[0.25em] mt-3 flex items-center justify-center gap-2"
+          >
             <Sparkles className="w-3.5 h-3.5 text-orange-500" />
             <span>Industrial Heating Solutions Products</span>
-          </p>
+          </motion.p>
 
           {/* Product pills */}
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.75 }}
             className="flex flex-wrap justify-center gap-1.5 md:gap-2 max-w-3xl mx-auto mt-6 px-4"
             id="banner-products-pills"
           >
@@ -264,26 +331,39 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                 </button>
               ));
             })()}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* 2. ADVANCED HEATING SOLUTIONS INTRO */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20" id="solutions-section">
         <div className="mb-8" id="solutions-intro-header">
-          <div className="flex items-center gap-2 text-orange-500 font-mono text-xs uppercase tracking-widest">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-2 text-orange-500 font-mono text-xs uppercase tracking-widest"
+          >
             <Sparkles className="w-4 h-4 text-orange-500" />
             <span>Market Leaders in Heaters</span>
-          </div>
-          <h2
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.5 }}
             className="text-2xl md:text-3xl font-display font-medium text-orange-500 mt-2 uppercase tracking-wider"
             id="solutions-subheading"
           >
             Advanced Heating Solutions for Industry
-          </h2>
+          </motion.h2>
         </div>
 
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.6 }}
           className={`border rounded-xl p-6 md:p-8 relative overflow-hidden shadow-xl ${
             theme === 'light'
               ? 'bg-white border-slate-200'
@@ -371,7 +451,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 3. KEY FACTS GRID */}
@@ -419,13 +499,20 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" id="facts-interactive-interface">
-            {/* Grid Cards — no whileInView, use CSS stagger via inline delay */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+            id="facts-interactive-interface"
+          >
+            {/* Grid Cards — animated on hover */}
             <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5" id="facts-grid-cards">
               {getCurrentFacts().map((fact, index) => {
                 const isSelected = selectedFact?.id === fact.id;
                 return (
-                  <div
+                  <motion.div
                     key={`${fact.id}-${index}`}
                     onClick={() => {
                       setSelectedFact(fact);
@@ -433,24 +520,28 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                         window.open("https://www.google.com/maps/search/?api=1&query=HEAT+ONE+TECHNOLOGY+1+Modern+Sheet+Metal+Work+Road+No+26+Thane+Maharashtra+400604", "_blank", "noopener,noreferrer");
                       }
                     }}
-                    className={`cursor-pointer group relative p-6 rounded-xl border flex flex-col items-center text-center justify-center min-h-[160px] overflow-hidden transition-colors duration-200 ${
+                    whileHover={{ scale: 1.02, y: -3 }}
+                    transition={{ type: "tween", duration: 0.2 }}
+                    className={`cursor-pointer group relative p-6 rounded-xl border flex flex-col items-center text-center justify-center min-h-[160px] overflow-hidden transition-all duration-300 ${
                       isSelected
-                        ? 'bg-gradient-to-tr from-orange-950/40 via-[#120e0a]/80 to-[#1e140d]/80 border-orange-500'
+                        ? 'bg-gradient-to-tr from-orange-950/40 via-[#120e0a]/80 to-[#1e140d]/80 border-orange-500 shadow-[0_0_24px_rgba(249,115,22,0.25)]'
                         : 'bg-[#0b0c0e] hover:bg-zinc-900 border-zinc-800 hover:border-orange-500/40'
                     }`}
                     id={`fact-card-${fact.id}`}
                   >
+                    {/* Maps indicator on top-right for location fact */}
                     {fact.id === 'location' && (
                       <span className="absolute top-2 right-2 text-[8px] font-mono bg-orange-500/20 text-orange-400 group-hover:bg-orange-500 group-hover:text-black transition-colors px-1.5 py-0.5 rounded flex items-center gap-0.5 uppercase tracking-wider">
                         Maps ↗
                       </span>
                     )}
 
+                    {/* Glowing highlight ring for selected state */}
                     {isSelected && (
-                      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent shadow-[0_-4px_16px_#f97316]" />
                     )}
 
-                    <div className="mb-4 p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800 group-hover:border-orange-500/30 transition-colors duration-200 shadow-inner">
+                    <div className="mb-4 p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800 group-hover:border-orange-500/30 group-hover:scale-110 transition-all duration-300 shadow-inner">
                       {getIcon(fact.icon)}
                     </div>
 
@@ -463,7 +554,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                     }`}>
                       {fact.value}
                     </span>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -537,13 +628,20 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
                 )}
               </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* 4. TECHNICAL VALUES */}
       <section className="bg-black py-16 md:py-24 px-4 md:px-8 border-t border-zinc-900" id="values-section">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12" id="values-grid">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
+          id="values-grid"
+        >
           <div className="flex gap-4" id="value-quality">
             <div className="text-4xl font-extrabold font-mono text-orange-600/30">01</div>
             <div>
@@ -573,7 +671,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
     </div>
   );
