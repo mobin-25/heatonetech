@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Phone, Flame, ShieldCheck, History, Sun, Moon } from 'lucide-react';
+import { Search, Phone, ShieldCheck, History, Sun, Moon } from 'lucide-react';
 import { TabType } from '../types';
 
 const DISMISS_DURATION = 12 * 60 * 60 * 1000; // 12 hours
@@ -103,9 +103,21 @@ export default function Header({
             className="flex items-center gap-3 cursor-pointer group select-none"
             id="header-logo"
           >
-            <div className="relative flex items-center justify-center p-2 rounded-lg bg-orange-600/10 border border-orange-500/20 group-hover:border-orange-500/50 transition-colors">
-              <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
-              <div className="absolute inset-0 bg-orange-500/20 blur-md rounded-full -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* Company Logo */}
+            <div
+              className="h-11 w-11 shrink-0 transition-all duration-300 group-hover:scale-105 flex items-center justify-center"
+            >
+              <img
+                src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
+                alt="Heat One Technology Logo"
+                className="w-full h-full object-contain scale-[1.18]"
+                style={{
+                  filter: theme === 'light'
+                    ? 'drop-shadow(0 1px 4px rgba(234,88,12,0.2))'
+                    : 'drop-shadow(0 0 8px rgba(234,88,12,0.65))'
+                }}
+                draggable={false}
+              />
             </div>
             <div>
               <div className="text-xl md:text-2xl font-bold tracking-wider text-white" id="brand-name">

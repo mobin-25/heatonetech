@@ -342,6 +342,13 @@ export default function App() {
 
   const handleProceedToInquiry = () => {
     setActiveTab('contact');
+    // After the Contact tab renders, scroll smoothly to the form column
+    setTimeout(() => {
+      const formCol = document.getElementById('contact-form-col');
+      if (formCol) {
+        formCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
   };
 
   const handleClearStorageError = () => {
@@ -352,7 +359,16 @@ export default function App() {
   const renderActiveTabContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeView theme={theme} />;
+        return (
+          <HomeView
+            theme={theme}
+            products={products}
+            onNavigateToProduct={(productId) => {
+              setSelectedProductId(productId);
+              setActiveTab('products');
+            }}
+          />
+        );
       case 'products':
         return (
           <ProductsView

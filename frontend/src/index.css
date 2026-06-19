@@ -286,3 +286,35 @@ html.light-mode body {
 html {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Promote banner image to its own GPU layer */
+#hero-banner-image {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Contain layout/paint for off-screen heavy sections */
+#facts-section,
+#values-section {
+  contain: layout style;
+}
+
+/* Reduce motion for users who prefer it (accessibility + performance) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Remove expensive box-shadow transitions — only set on interaction */
+.transition-all {
+  transition-property: color, border-color, background-color, opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

@@ -331,7 +331,16 @@ export default function ContactView({
                   <div>
                     <span className="text-[10px] font-mono text-zinc-500 uppercase block">Factory Address</span>
                     <strong className="text-zinc-200">HEAT ONE TECHNOLOGY</strong>
-                    <p className="text-zinc-400 mt-0.5 leading-relaxed text-xs">BUS DEPO, PLOT NO A-342, Rd Number 26, CP Talav, Wagle Industrial Estate, Thane West, Thane, Maharashtra 400604</p>
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=HEAT+ONE+TECHNOLOGY+BUS+DEPO+PLOT+NO+A-342+Rd+Number+26+CP+Talav+Wagle+Industrial+Estate+Thane+West+Thane+Maharashtra+400604"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-zinc-400 mt-0.5 leading-relaxed text-xs hover:text-orange-400 transition-colors flex items-start gap-1 group"
+                      title="Open in Google Maps"
+                    >
+                      <span>BUS DEPO, PLOT NO A-342, Rd Number 26, CP Talav, Wagle Industrial Estate, Thane West, Thane, Maharashtra 400604</span>
+                      <span className="text-orange-500/60 group-hover:text-orange-400 text-[10px] shrink-0 mt-0.5">↗</span>
+                    </a>
                   </div>
                 </li>
 
@@ -350,6 +359,7 @@ export default function ContactView({
                     <span className="text-[10px] font-mono text-zinc-500 uppercase block">Phone Support</span>
                     <a href="tel:+919221783525" className="hover:text-orange-400 text-zinc-200 block font-mono font-medium">+91 92217 83525</a>
                     <a href="tel:+918767655745" className="hover:text-orange-400 text-zinc-300 block font-mono text-xs mt-1">+91 87676 55745</a>
+                    <a href="tel:+917666634617" className="hover:text-orange-400 text-zinc-300 block font-mono text-xs mt-1">+91 76666 34617</a>
                   </div>
                 </li>
 
