@@ -18,13 +18,52 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   // Land on HomeView by default, which is the rebranded Company Profile details
-  const [activeTab, setActiveTab ] = useState<TabType>('home');
+  const getInitialTab = (): TabType => {
+  const path = window.location.pathname.toLowerCase();
+
+  if (path === '/products') return 'products';
+  if (path === '/contact') return 'contact';
+  if (path === '/admin') return 'admin';
+
+  return 'home';
+};
+
+const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   // Scroll to top of the page on tab/page change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [activeTab]);
+
+  // Synchronize browser URL pathname with activeTab
+  useEffect(() => {
+    const routes: Record<TabType, string> = {
+      home: '/',
+      products: '/products',
+      contact: '/contact',
+      admin: '/admin'
+    };
+    const currentPath = window.location.pathname.toLowerCase();
+    const targetPath = routes[activeTab] || '/';
+    if (currentPath !== targetPath) {
+      window.history.pushState({}, '', targetPath);
+    }
+  }, [activeTab]);
+
+  // Handle browser back/forward buttons (popstate navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      if (path === '/products') setActiveTab('products');
+      else if (path === '/contact') setActiveTab('contact');
+      else if (path === '/admin') setActiveTab('admin');
+      else setActiveTab('home');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<{ email: string } | null>(() => {
