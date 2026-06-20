@@ -21,11 +21,16 @@ export default function Footer({ setActiveTab, onOpenCall }: FooterProps) {
             <ul className="space-y-3 text-xs md:text-sm min-w-0">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <span>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=HEAT+ONE+TECHNOLOGY,+BUS+DEPO,+PLOT+NO+A-342,+Rd+Number+26,+CP+Talav,+Wagle+Industrial+Estate,+Thane+West,+Thane,+Maharashtra+400604"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-orange-400 transition-colors"
+                >
                   <strong>HEAT ONE TECHNOLOGY</strong>
                   <br />
                   BUS DEPO, PLOT NO A-342, Rd Number 26, CP Talav, Wagle Industrial Estate, Thane West, Thane, Maharashtra 400604
-                </span>
+                </a>
               </li>
               <li className="flex items-center gap-2.5 min-w-0">
                 <Mail className="w-4 h-4 text-orange-500 shrink-0" />
@@ -33,14 +38,17 @@ export default function Footer({ setActiveTab, onOpenCall }: FooterProps) {
                   heatonetechnology@gmail.com
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-orange-500 shrink-0" />
+              <li className="flex items-start gap-2.5">
+                <Phone className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                 <div className="flex flex-col font-mono text-xs">
                   <a href="tel:+919221783525" className="hover:text-orange-400 transition-colors">
                     +91 92217 83525
                   </a>
                   <a href="tel:+918767655745" className="hover:text-orange-400 transition-colors">
                     +91 87676 55745
+                  </a>
+                  <a href="tel:+917666634617" className="hover:text-orange-400 transition-colors">
+                    +91 76666 34617
                   </a>
                 </div>
               </li>
