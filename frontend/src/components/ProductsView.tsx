@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Helmet } from "react-helmet-async";
 import { PRODUCTS } from '../data';
 import { Product } from '../types';
 import { Search, Flame, Cpu, Filter, Info, ShieldCheck, ShoppingCart, Trash2, ArrowRight, ArrowLeft, Calculator, Shield, Zap, Target, Gauge, ChevronLeft, ChevronRight, Sparkles, Image as ImageIcon, Pencil, Maximize2, X } from 'lucide-react';
@@ -626,7 +627,23 @@ export default function ProductsView({
   });
 
   return (
-    <div className="bg-[#060608] min-h-screen text-zinc-100 py-16 px-4 md:px-8" id="products-view-container">
+    <>
+      <Helmet>
+        <title>
+          Industrial Heaters, Quartz Tube Heaters & Ceramic Heaters | Heat One Technology
+        </title>
+
+        <meta
+          name="description"
+          content="Manufacturer of Quartz Tube Heaters, Ceramic Band Heaters, Infrared Heaters, Tubular Heaters and Industrial Heating Solutions in India."
+        />
+
+        <meta
+          name="keywords"
+          content="quartz tube heater, ceramic band heater, infrared heater, tubular heater, industrial heater manufacturer, heat one technology"
+        />
+      </Helmet>
+      <div className="bg-[#060608] min-h-screen text-zinc-100 py-16 px-4 md:px-8" id="products-view-container">
       <div className="max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
           {viewedProduct ? (
@@ -1930,5 +1947,6 @@ export default function ProductsView({
 
       </div>
     </div>
+    </>
   );
 }
