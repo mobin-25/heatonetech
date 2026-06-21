@@ -1745,6 +1745,68 @@ export default function ProductsView({
     )}
   </AnimatePresence>
 
+        {/* Premium SEO Content Section */}
+        <section className="mt-20 pt-16 border-t border-zinc-900/60 max-w-7xl mx-auto" id="products-seo-content">
+          <h2 className="text-xl md:text-2xl font-display font-medium text-white mb-6 uppercase tracking-wide">
+            Industrial Heating Solutions by Heat One Technology
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-zinc-400 text-xs md:text-sm leading-relaxed">
+            <div className="space-y-4 text-justify">
+              <p>
+                Heat One Technology manufactures high-quality industrial heating
+                elements for a wide range of applications. Our Quartz Tube Heaters
+                provide fast and efficient infrared heating for industrial processes,
+                drying systems, and heating chambers. These quartz elements are
+                designed to endure rapid thermal cycles, making them highly reliable
+                for continuous conveyor ovens, batch furnaces, and automotive paint booths.
+              </p>
+
+              <p>
+                Our Ceramic Band Heaters are widely used in plastic processing
+                machinery, extrusion equipment, and industrial heating systems.
+                They offer excellent heat retention and energy efficiency by minimizing
+                rearward heat loss. Built with high-purity ceramic bricks and computer-wound
+                Ni-Cr resistance coils, these band heaters provide reliable operations up
+                to 700°C, lowering operational electricity consumption significantly.
+              </p>
+
+              <p>
+                Additionally, we specialize in high-density Cartridge Heaters compacted
+                with high-grade magnesium oxide insulation for maximum heat dispersion in
+                compact spaces. These cartridge elements are precision-swaged to fit tightly
+                into metal dies, molds, and hot runner tips, ensuring excellent longevity.
+              </p>
+            </div>
+
+            <div className="space-y-4 text-justify">
+              <p>
+                We also manufacture Infrared Heaters, Tubular Heaters, Cartridge
+                Heaters, Bobbin Heaters, and custom industrial heating solutions
+                designed for demanding manufacturing environments. Our multi-element immersion
+                heaters are engineered for boiling process oils, chemical pools, and large water
+                tanks. Fitted with robust threaded brass adapters and U-tube bundles, they ensure
+                leak-free, prolonged operations in high-pressure fluid reservoirs.
+              </p>
+
+              <p>
+                Our Bobbin Heaters are built for quick replacements inside protective tubes without
+                depleting tanks, making them an excellent choice for asphalt storage and paraffin heating.
+                We also supply finned air heaters that increase convective surface area by 2.5 times,
+                perfect for forced air drying cabinets, curing ducts, and industrial food dehydration ovens.
+              </p>
+
+              <p>
+                Heat One Technology serves customers across India with reliable
+                heating products, technical support, and customized heating solutions
+                for industrial applications. Based in Thane, Maharashtra, we are committed
+                to delivering standard and custom-calibrated heating elements matching precise
+                voltages, wattages, and dimensional shapes for optimal thermal transfer.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Floating Active Quote Inquiry panel if items are in cart */}
         <AnimatePresence>
           {quoteCart.length > 0 && (
