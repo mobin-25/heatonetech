@@ -635,7 +635,7 @@ export default function ProductsView({
 
         <meta
           name="description"
-          content="Manufacturer of Quartz Tube Heaters, Ceramic Band Heaters, Infrared Heaters, Tubular Heaters and Industrial Heating Solutions in India."
+          content="Heat One Technology manufactures Quartz Tube Heaters, Ceramic Band Heaters, Cartridge Heaters, Bobbin Heaters, Tubular Heaters, Infrared Heaters, Immersion Heaters and Industrial Heating Solutions in India."
         />
 
         <meta
