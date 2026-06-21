@@ -90,6 +90,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'shortwave-ir',
     name: 'Short Wave Infrared Heaters',
+    slug: 'short-wave-infrared-heaters',
     subtitle: 'High-Velocity Heat Transmission',
     category: 'infrared',
     description: 'Ultra-fast response elements executing maximum heat convergence in under 1 second.',
@@ -119,6 +120,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'quartz-tubes',
     name: 'Quartz Glass Heating Elements',
+    slug: 'quartz-glass-heating-elements',
     subtitle: 'Medium-Wave General Radiators',
     category: 'quartz-tubes',
     description: 'Durable elements inside protective high-grade silica tubes, ensuring uniform heat flux.',
@@ -148,6 +150,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'twin-tube-ir',
     name: 'Twin Tube Carbon Infrared Heaters',
+    slug: 'twin-tube-carbon-infrared-heaters',
     subtitle: 'Mechanical Strength with Medium Wave Efficiency',
     category: 'infrared',
     description: 'Double-bored high-density quartz glass shape providing mechanical stiffness and high absorption rates.',
@@ -177,6 +180,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'ceramic-panels',
     name: 'Ceramic Infrared Panels',
+    slug: 'ceramic-infrared-panels',
     subtitle: 'Long Wave Solid Non-Contact Uniform Warmers',
     category: 'ceramic',
     description: 'Fully glazed solid casting heaters ideal for static, thermo-molding, and heavy-duty environments.',
@@ -206,6 +210,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'industrial-ovens',
     name: 'Infrared Batch & Conveyor Ovens',
+    slug: 'infrared-batch-conveyor-ovens',
     subtitle: 'Engineered Thermal Heat Processing Tunnel Chambers',
     category: 'ovens',
     description: 'Fully pre-wired, multi-zoned electric ovens with optimized heater arrays and control cabinets.',

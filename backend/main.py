@@ -62,6 +62,7 @@ admin_collection = database.get_collection("admins")
 class ProductModel(BaseModel):
     id: Optional[str] = None
     name: str
+    slug: Optional[str] = ""
     subtitle: str
     category: str
     description: str
@@ -72,6 +73,7 @@ class ProductModel(BaseModel):
     imageUrl: Optional[str] = ""
     additionalImages: Optional[List[str]] = []
     order: Optional[int] = 0
+
 
 class InquiryModel(BaseModel):
     id: Optional[str] = None
@@ -321,6 +323,23 @@ def send_inquiry_email(inquiry_data: dict) -> bool:
 # 4. Startup event to seed the database if empty
 @app.on_event("startup")
 async def seed_db():
+    # Migrate any existing products that lack a slug property
+    import re
+    cursor = product_collection.find({})
+    async for doc in cursor:
+        if not doc.get("slug"):
+            name = doc.get("name", "")
+            slug = name.lower()
+            slug = re.sub(r'[^a-z0-9]+', '-', slug)
+            slug = slug.strip('-')
+            if doc.get("id") == "brochure-shortwave-ir":
+                slug = "standard-short-wave-infrared-heaters"
+            print(f"[MIGRATION] Assigning slug '{slug}' to product ID '{doc.get('_id')}'")
+            await product_collection.update_one(
+                {"_id": doc["_id"]},
+                {"$set": {"slug": slug}}
+            )
+
     count = await product_collection.count_documents({})
     if count == 0:
         print("Seeding MongoDB database with initial catalog products...")
@@ -329,6 +348,14 @@ async def seed_db():
             p_dict = dict(p)
             p_dict["_id"] = p_dict["id"]
             p_dict["order"] = index
+            if not p_dict.get("slug"):
+                name = p_dict.get("name", "")
+                slug = name.lower()
+                slug = re.sub(r'[^a-z0-9]+', '-', slug)
+                slug = slug.strip('-')
+                if p_dict.get("id") == "brochure-shortwave-ir":
+                    slug = "standard-short-wave-infrared-heaters"
+                p_dict["slug"] = slug
             seeded.append(p_dict)
         await product_collection.insert_many(seeded)
         print(f"Successfully seeded {len(SEED_PRODUCTS)} products.")
@@ -558,6 +585,15 @@ async def reset_products_catalog():
             p_dict = dict(p)
             p_dict["_id"] = p_dict["id"]
             p_dict["order"] = index
+            if not p_dict.get("slug"):
+                import re
+                name = p_dict.get("name", "")
+                slug = name.lower()
+                slug = re.sub(r'[^a-z0-9]+', '-', slug)
+                slug = slug.strip('-')
+                if p_dict.get("id") == "brochure-shortwave-ir":
+                    slug = "standard-short-wave-infrared-heaters"
+                p_dict["slug"] = slug
             seeded.append(p_dict)
         await product_collection.insert_many(seeded)
         return {"message": "Catalog reset to default"}

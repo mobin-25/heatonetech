@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Helmet } from "react-helmet-async";
 import { PRODUCTS } from '../data';
 import { Product } from '../types';
-import { Search, Flame, Cpu, Filter, Info, ShieldCheck, ShoppingCart, Trash2, ArrowRight, ArrowLeft, Calculator, Shield, Zap, Target, Gauge, ChevronLeft, ChevronRight, Sparkles, Image as ImageIcon, Pencil, Maximize2, X } from 'lucide-react';
+import { Search, Flame, Cpu, Filter, Info, ShieldCheck, ShoppingCart, Trash2, ArrowRight, ArrowLeft, Calculator, Shield, Zap, Target, Gauge, ChevronLeft, ChevronRight, Sparkles, Image as ImageIcon, Pencil, Maximize2, X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ProductEditPanel from './ProductEditPanel';
 
@@ -26,6 +26,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-mica-band",
     name: "Standard Band Heaters",
+    slug: "standard-band-heaters",
     subtitle: "Mica insulated wrapped in stainless steel casing | 3-Bolt Clamp",
     category: "ceramic",
     description: "Flexible, inexpensive, and durable heaters wrapped in stainless steel casing. Widely engineered to heat molds, dies, nozzles, and cylinders of plastic machines.",
@@ -55,6 +56,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-ceramic-band",
     name: "Ceramic Band Heaters",
+    slug: "ceramic-band-heaters",
     subtitle: "High Temperature Insulating Bricks | SS Shell",
     category: "ceramic",
     description: "Durable mat design built with high-purity ceramic bricks on wire coils. Housing serrations allow mechanical flex to adapt snugly around complex system barrels.",
@@ -84,6 +86,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-cartridge-heaters",
     name: "High Density Cartridge Heaters",
+    slug: "high-density-cartridge-heaters",
     subtitle: "12 W/sq.cm Density | SS304 Sheath | Inbuilt TC",
     category: "infrared",
     description: "Precision heating elements swaged to maximum core compaction. Pre-engineered with built-in Type J or K thermocouples for fast PID temperature control diagnostics.",
@@ -113,6 +116,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-ceramic-strip",
     name: "Small Immersion Heater Clusters",
+    slug: "small-immersion-heater-clusters",
     subtitle: "Immersion & Finned Heaters | Brass Thread with Yellow Cap",
     category: "ceramic",
     description: "Compact immersion elements pre-engineered with heavy brass threads and fitted with protective yellow plastic terminal caps.",
@@ -142,6 +146,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-tubular-immersion",
     name: "Multi-Element Immersion Heaters",
+    slug: "multi-element-immersion-heaters",
     subtitle: "Multi-Element U-Tubes | Brass Screw Plug",
     category: "tubular-heaters",
     description: "Robust heating elements bundled in parallel U-bent configurations welded on heavy brass screw flanges to heat large fluid basins.",
@@ -171,6 +176,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-tubular-fins",
     name: "Finned Air Heaters",
+    slug: "finned-air-heaters",
     subtitle: "SS304 Heli-Crimped Fins | Threaded Mounts",
     category: "tubular-heaters",
     description: "Steel fins helically wrapped and tightly crimped on a tubular heater base to significantly expand convection surfaces inside dry air ovens.",
@@ -200,6 +206,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-shortwave-ir",
     name: "Short Wave Infrared Heaters",
+    slug: "standard-short-wave-infrared-heaters",
     subtitle: "Peak 950°C in < 2 sec | Standard Ceramic Gold/White Coating",
     category: "infrared",
     description: "Coiled tungsten filaments inside quartz gas-flushed tubes. Standard ceramic white reflect backing redirects 90% of radiation forward toward active web targets.",
@@ -230,6 +237,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-ceramic-ir",
     name: "Ceramic Infrared Heaters",
+    slug: "ceramic-infrared-heaters",
     subtitle: "60W - 1000W | Resistant curved & flat elements",
     category: "ceramic",
     description: "Glazed cast-in alloy heaters designed for vacuum thermoforming systems. Impervious to aggressive splash moisture, chemical vapor corrosion, or acid vapors.",
@@ -259,6 +267,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-sw-modules",
     name: "Short Wave IR Modules",
+    slug: "short-wave-ir-modules",
     subtitle: "Pre-wired array banks | Gold reflectors",
     category: "ovens",
     description: "Fully balanced, multi-lamp mechanical blower rigs focusing high-speed heat for automated plastics embossing and packaging film shrink tunnels.",
@@ -289,6 +298,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-mw-modules",
     name: "Medium Wave IR Heating Modules",
+    slug: "medium-wave-ir-heating-modules",
     subtitle: "Durable Silica Quartz tubes | Balanced thermal absorption",
     category: "ovens",
     description: "Optimized for high-speed continuous line grids, paint ovens, paper pre-heating, moisture evaporation, and surface adhesive reactivation.",
@@ -319,6 +329,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-bobbin",
     name: "Bobbin Heaters",
+    slug: "bobbin-heaters",
     subtitle: "Ceramic support bobbins | Quick Slide-in Replacement",
     category: "ceramic",
     description: "Simplifies element replacements: these slide straight into protective metallic tubes without needing to drain chemical oil wells or high pressure liquid tanks.",
@@ -348,6 +359,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-micro-tubular",
     name: "Micro Tubular Heaters",
+    slug: "micro-tubular-heaters",
     subtitle: "Nozzle-wrapped coiled heaters | Maximum local watts output",
     category: "tubular-heaters",
     description: "Highly compact helically coiled elements designed for plastic injection molds where maximum local power output and miniature fitting spaces are vital.",
@@ -377,6 +389,7 @@ export const BROCHURE_PRODUCTS: Product[] = [
   {
     id: "brochure-quartz-tubes",
     name: "Clear & Milky Quartz Tubes",
+    slug: "clear-milky-quartz-tubes",
     subtitle: "99.98% SiO2 Purity | Ultra-low -OH Hydrosol indexes",
     category: "quartz-tubes",
     description: "Floro-silica tubes available in opaque milky or transparent glass options. Resistant to temperature changes, ideal for microwave furnaces and car baking systems.",
@@ -414,6 +427,7 @@ interface ProductsViewProps {
   activeProductId?: string | null;
   onSelectProductId?: (id: string | null) => void;
   products: Product[];
+  loading?: boolean;
   isAdminLoggedIn?: boolean;
   onUpdateProductDetail?: (productId: string, updatedProduct: Product) => void;
   onNavigateToTab?: (tab: 'home' | 'products' | 'contact' | 'admin') => void;
@@ -428,6 +442,7 @@ export default function ProductsView({
   activeProductId,
   onSelectProductId,
   products = [],
+  loading = false,
   isAdminLoggedIn = false,
   onUpdateProductDetail,
   onNavigateToTab,
@@ -629,9 +644,7 @@ export default function ProductsView({
   });
 
   // Generate product slug for canonical URL and metadata
-  const productSlug = viewedProduct
-    ? viewedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-    : '';
+  const productSlug = viewedProduct ? viewedProduct.slug : '';
 
   // Dynamic Product JSON-LD schema
   const productSchema = viewedProduct ? {
@@ -683,18 +696,30 @@ export default function ProductsView({
     "name": "Industrial Heaters & Heating Elements Catalog",
     "numberOfItems": ALL_PRODUCTS.length,
     "itemListElement": ALL_PRODUCTS.map((p, index) => {
-      const pSlug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       return {
         "@type": "ListItem",
         "position": index + 1,
-        "url": `https://www.heatonetechnology.live/products/${pSlug}`
+        "url": `https://www.heatonetechnology.live/products/${p.slug}`
       };
     })
   } : null;
 
+  const path = window.location.pathname.toLowerCase();
+  const requestedSlug = path.startsWith('/products/') && path !== '/products' && path !== '/products/'
+    ? path.replace('/products/', '')
+    : '';
+  const isProductNotFound = !loading && requestedSlug !== '' && !ALL_PRODUCTS.some(p => p.slug === requestedSlug);
+
   return (
     <>
-      {viewedProduct ? (
+      {isProductNotFound ? (
+        <Helmet>
+          <title>Product Not Found | Heat One Technology</title>
+          <meta name="description" content="The requested industrial heating element was not found in our catalog." />
+          <meta name="robots" content="noindex, follow" />
+          <link rel="canonical" href={`https://www.heatonetechnology.live/products/${requestedSlug}`} />
+        </Helmet>
+      ) : viewedProduct ? (
         <Helmet>
           <title>{`${viewedProduct.name} Manufacturer in India | Heat One Technology`}</title>
           <meta
@@ -755,7 +780,42 @@ export default function ProductsView({
       <div className="bg-[#060608] min-h-screen text-zinc-100 py-16 px-4 md:px-8" id="products-view-container">
       <div className="max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
-          {viewedProduct ? (
+          {isProductNotFound ? (
+            <motion.div
+              key="not-found-screen"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center justify-center text-center py-24 px-4 max-w-lg mx-auto space-y-6 min-h-[60vh]"
+              id="product-not-found-screen"
+            >
+              <div className="p-4 bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-full animate-bounce">
+                <AlertTriangle className="w-12 h-12" />
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-2xl md:text-3xl font-display font-medium text-white tracking-tight uppercase">
+                  Product Not Found
+                </h1>
+                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                  The requested heating element <code className="text-orange-400 font-mono">/products/{requestedSlug}</code> does not exist in our active catalog database.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  window.history.pushState({}, '', '/products');
+                  if (onSelectProductId) {
+                    onSelectProductId(null);
+                  }
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-xs font-mono font-bold text-white uppercase tracking-wider rounded-xl shadow-lg hover:shadow-orange-500/20 transition-all hover:scale-102 active:scale-98 cursor-pointer select-none border border-orange-500/35"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Catalog</span>
+              </button>
+            </motion.div>
+          ) : viewedProduct ? (
             <motion.div
               key="detail-screen"
               initial={{ opacity: 0, y: 15 }}
@@ -1077,11 +1137,10 @@ export default function ProductsView({
                     const otherCats = ALL_PRODUCTS.filter(p => p.id !== viewedProduct.id && p.category !== viewedProduct.category);
                     const combined = [...matchedCat, ...otherCats].slice(0, 3);
                     return combined.map((rp) => {
-                      const rpSlug = rp.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
                       return (
                         <a
                           key={rp.id}
-                          href={`/products/${rpSlug}`}
+                          href={`/products/${rp.slug}`}
                           onClick={(e) => {
                             e.preventDefault();
                             setViewedProduct(rp);
@@ -1300,7 +1359,7 @@ export default function ProductsView({
               return (
                 <motion.a
                   key={prod.id}
-                  href={`/products/${prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`}
+                  href={`/products/${prod.slug}`}
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedProductDetails(prod);
@@ -1467,7 +1526,7 @@ export default function ProductsView({
                 return (
                   <motion.a
                     key={product.id}
-                    href={`/products/${product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`}
+                    href={`/products/${product.slug}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setSelectedProductDetails(product);

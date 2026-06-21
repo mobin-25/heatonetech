@@ -34,13 +34,7 @@ export default function App() {
       const parts = path.split('/');
       if (parts.length > 2 && parts[2]) {
         const slug = parts[2];
-        const found = PRODUCTS.find(p => {
-          const productSlug = p.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, '');
-          return productSlug === slug;
-        });
+        const found = PRODUCTS.find(p => p.slug === slug);
         return found ? found.id : null;
       }
     }
@@ -72,11 +66,7 @@ export default function App() {
     if (activeTab === 'products' && selectedProductId) {
       const selectedProduct = products.find(p => p.id === selectedProductId);
       if (selectedProduct) {
-        const slug = selectedProduct.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)+/g, '');
-        targetPath = `/products/${slug}`;
+        targetPath = `/products/${selectedProduct.slug}`;
       }
     }
 
@@ -101,13 +91,7 @@ export default function App() {
         const parts = path.split('/');
         if (parts.length > 2 && parts[2]) {
           const slug = parts[2];
-          const found = products.find(p => {
-            const productSlug = p.name
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/(^-|-$)+/g, '');
-            return productSlug === slug;
-          });
+          const found = products.find(p => p.slug === slug);
           if (found) {
             setSelectedProductId(found.id);
           } else {
@@ -325,13 +309,7 @@ export default function App() {
         const parts = path.split('/');
         if (parts.length > 2 && parts[2]) {
           const slug = parts[2];
-          const found = products.find(p => {
-            const productSlug = p.name
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/(^-|-$)+/g, '');
-            return productSlug === slug;
-          });
+          const found = products.find(p => p.slug === slug);
           if (found && selectedProductId !== found.id) {
             setSelectedProductId(found.id);
           }
@@ -501,6 +479,7 @@ export default function App() {
             activeProductId={selectedProductId}
             onSelectProductId={setSelectedProductId}
             products={products}
+            loading={loading}
             isAdminLoggedIn={isAdminLoggedIn}
             onUpdateProductDetail={handleUpdateProductDetail}
             onNavigateToTab={(tab) => setActiveTab(tab)}

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// Helper to generate slug
+// Helper to generate slug as a fallback
 const getProductSlug = (name) => {
   return name
     .toLowerCase()
@@ -12,36 +12,36 @@ const getProductSlug = (name) => {
 
 const getProductsFromProductsView = () => {
   const viewPath = path.join(__dirname, 'src', 'components', 'ProductsView.tsx');
-  const products = [];
+  const slugs = [];
   try {
     if (fs.existsSync(viewPath)) {
       const content = fs.readFileSync(viewPath, 'utf8');
-      // Match names in BROCHURE_PRODUCTS
-      const nameRegex = /name:\s*['"`]([^'"`]+)['"`]/g;
+      // Match slugs in BROCHURE_PRODUCTS
+      const slugRegex = /slug:\s*['"`]([^'"`]+)['"`]/g;
       let match;
-      while ((match = nameRegex.exec(content)) !== null) {
-        if (!products.includes(match[1]) && !match[1].startsWith('/') && match[1].length < 100) {
-          products.push(match[1]);
+      while ((match = slugRegex.exec(content)) !== null) {
+        if (!slugs.includes(match[1]) && !match[1].startsWith('/') && match[1].length < 100) {
+          slugs.push(match[1]);
         }
       }
     }
   } catch (e) {
     console.error("Error reading ProductsView.tsx for fallback:", e);
   }
-  return products;
+  return slugs;
 };
 
 const getProductsFromStaticFile = () => {
   const dataPath = path.join(__dirname, 'src', 'data.ts');
-  const products = [];
+  const slugs = [];
   try {
     const content = fs.readFileSync(dataPath, 'utf8');
-    // Match product names inside PRODUCTS array
-    const nameRegex = /name:\s*['"`]([^'"`]+)['"`]/g;
+    // Match product slugs inside PRODUCTS array
+    const slugRegex = /slug:\s*['"`]([^'"`]+)['"`]/g;
     let match;
-    while ((match = nameRegex.exec(content)) !== null) {
-      if (!products.includes(match[1])) {
-        products.push(match[1]);
+    while ((match = slugRegex.exec(content)) !== null) {
+      if (!slugs.includes(match[1])) {
+        slugs.push(match[1]);
       }
     }
   } catch (e) {
@@ -49,17 +49,17 @@ const getProductsFromStaticFile = () => {
   }
 
   // Combine with brochure products
-  const brochureProducts = getProductsFromProductsView();
-  brochureProducts.forEach(name => {
-    if (!products.includes(name)) {
-      products.push(name);
+  const brochureSlugs = getProductsFromProductsView();
+  brochureSlugs.forEach(slug => {
+    if (!slugs.includes(slug)) {
+      slugs.push(slug);
     }
   });
 
-  return products;
+  return slugs;
 };
 
-const writeSitemap = (productNames) => {
+const writeSitemap = (productSlugs) => {
   const sitemapUrls = [
     'https://www.heatonetechnology.live/',
     'https://www.heatonetechnology.live/products',
@@ -67,11 +67,11 @@ const writeSitemap = (productNames) => {
     'https://www.heatonetechnology.live/admin'
   ];
 
-  // De-duplicate names
-  const uniqueNames = Array.from(new Set(productNames));
+  // De-duplicate slugs
+  const uniqueSlugs = Array.from(new Set(productSlugs));
 
-  uniqueNames.forEach(name => {
-    sitemapUrls.push(`https://www.heatonetechnology.live/products/${getProductSlug(name)}`);
+  uniqueSlugs.forEach(slug => {
+    sitemapUrls.push(`https://www.heatonetechnology.live/products/${slug}`);
   });
 
   const today = new Date().toISOString().split('T')[0];
@@ -108,10 +108,10 @@ const req = https.get('https://heatonetech.onrender.com/api/products', { timeout
       if (res.statusCode === 200) {
         const data = JSON.parse(body);
         if (data && Array.isArray(data.products)) {
-          const names = data.products.map(p => p.name);
-          if (names.length > 0) {
-            console.log(`Fetched ${names.length} products dynamically from backend.`);
-            writeSitemap(names);
+          const slugs = data.products.map(p => p.slug || getProductSlug(p.name));
+          if (slugs.length > 0) {
+            console.log(`Fetched ${slugs.length} products dynamically from backend.`);
+            writeSitemap(slugs);
             process.exit(0);
           }
         }
@@ -119,21 +119,21 @@ const req = https.get('https://heatonetech.onrender.com/api/products', { timeout
       throw new Error(`Invalid response or status code: ${res.statusCode}`);
     } catch (e) {
       console.warn("Could not parse products from live API. Falling back to static data...", e.message);
-      const names = getProductsFromStaticFile();
-      writeSitemap(names);
+      const slugs = getProductsFromStaticFile();
+      writeSitemap(slugs);
     }
   });
 });
 
 req.on('error', (e) => {
   console.warn("Backend API request failed. Falling back to static data...", e.message);
-  const names = getProductsFromStaticFile();
-  writeSitemap(names);
+  const slugs = getProductsFromStaticFile();
+  writeSitemap(slugs);
 });
 
 req.on('timeout', () => {
   req.destroy();
   console.warn("Backend API request timed out. Falling back to static data...");
-  const names = getProductsFromStaticFile();
-  writeSitemap(names);
+  const slugs = getProductsFromStaticFile();
+  writeSitemap(slugs);
 });

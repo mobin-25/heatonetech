@@ -409,9 +409,15 @@ export default function AdminView({
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const generatedSlug = prodName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+
     const preparedProduct: Product = {
       id: editingProduct ? editingProduct.id : `custom-${Date.now()}`,
       name: prodName,
+      slug: (editingProduct && editingProduct.slug && editingProduct.name === prodName) ? editingProduct.slug : generatedSlug,
       subtitle: prodSubtitle,
       category: prodCategory,
       description: prodDesc,

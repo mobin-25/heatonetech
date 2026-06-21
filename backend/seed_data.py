@@ -5,6 +5,7 @@ SEED_PRODUCTS = [
     {
         "id": "shortwave-ir",
         "name": "Short Wave Infrared Heaters",
+        "slug": "short-wave-infrared-heaters",
         "subtitle": "High-Velocity Heat Transmission",
         "category": "infrared",
         "description": "Ultra-fast response elements executing maximum heat convergence in under 1 second.",
@@ -35,6 +36,7 @@ SEED_PRODUCTS = [
     {
         "id": "quartz-tubes",
         "name": "Quartz Glass Heating Elements",
+        "slug": "quartz-glass-heating-elements",
         "subtitle": "Medium-Wave General Radiators",
         "category": "quartz-tubes",
         "description": "Durable elements inside protective high-grade silica tubes, ensuring uniform heat flux.",
@@ -65,6 +67,7 @@ SEED_PRODUCTS = [
     {
         "id": "twin-tube-ir",
         "name": "Twin Tube Carbon Infrared Heaters",
+        "slug": "twin-tube-carbon-infrared-heaters",
         "subtitle": "Mechanical Strength with Medium Wave Efficiency",
         "category": "infrared",
         "description": "Double-bored high-density quartz glass shape providing mechanical stiffness and high absorption rates.",
@@ -95,6 +98,7 @@ SEED_PRODUCTS = [
     {
         "id": "ceramic-panels",
         "name": "Ceramic Infrared Panels",
+        "slug": "ceramic-infrared-panels",
         "subtitle": "Long Wave Solid Non-Contact Uniform Warmers",
         "category": "ceramic",
         "description": "Fully glazed solid casting heaters ideal for static, thermo-molding, and heavy-duty environments.",
@@ -125,6 +129,7 @@ SEED_PRODUCTS = [
     {
         "id": "industrial-ovens",
         "name": "Infrared Batch & Conveyor Ovens",
+        "slug": "infrared-batch-conveyor-ovens",
         "subtitle": "Engineered Thermal Heat Processing Tunnel Chambers",
         "category": "ovens",
         "description": "Fully pre-wired, multi-zoned electric ovens with optimized heater arrays and control cabinets.",
@@ -156,6 +161,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-mica-band",
         "name": "Standard Band Heaters",
+        "slug": "standard-band-heaters",
         "subtitle": "Mica insulated wrapped in stainless steel casing | 3-Bolt Clamp",
         "category": "ceramic",
         "description": "Flexible, inexpensive, and durable heaters wrapped in stainless steel casing. Widely engineered to heat molds, dies, nozzles, and cylinders of plastic machines.",
@@ -185,6 +191,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-ceramic-band",
         "name": "Ceramic Band Heaters",
+        "slug": "ceramic-band-heaters",
         "subtitle": "High Temperature Insulating Bricks | SS Shell",
         "category": "ceramic",
         "description": "Durable mat design built with high-purity ceramic bricks on wire coils. Housing serrations allow mechanical flex to adapt snugly around complex system barrels.",
@@ -214,6 +221,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-cartridge-heaters",
         "name": "High Density Cartridge Heaters",
+        "slug": "high-density-cartridge-heaters",
         "subtitle": "12 W/sq.cm Density | SS304 Sheath | Inbuilt TC",
         "category": "infrared",
         "description": "Precision heating elements swaged to maximum core compaction. Pre-engineered with built-in Type J or K thermocouples for fast PID temperature control diagnostics.",
@@ -243,6 +251,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-ceramic-strip",
         "name": "Small Immersion Heater Clusters",
+        "slug": "small-immersion-heater-clusters",
         "subtitle": "Immersion & Finned Heaters | Brass Thread with Yellow Cap",
         "category": "ceramic",
         "description": "Compact immersion elements pre-engineered with heavy brass threads and fitted with protective yellow plastic terminal caps.",
@@ -272,6 +281,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-tubular-immersion",
         "name": "Multi-Element Immersion Heaters",
+        "slug": "multi-element-immersion-heaters",
         "subtitle": "Multi-Element U-Tubes | Brass Screw Plug",
         "category": "tubular-heaters",
         "description": "Robust heating elements bundled in parallel U-bent configurations welded on heavy brass screw flanges to heat large fluid basins.",
@@ -301,6 +311,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-tubular-fins",
         "name": "Finned Air Heaters",
+        "slug": "finned-air-heaters",
         "subtitle": "SS304 Heli-Crimped Fins | Threaded Mounts",
         "category": "tubular-heaters",
         "description": "Steel fins helically wrapped and tightly crimped on a tubular heater base to significantly expand convection surfaces inside dry air ovens.",
@@ -330,6 +341,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-shortwave-ir",
         "name": "Short Wave Infrared Heaters",
+        "slug": "standard-short-wave-infrared-heaters",
         "subtitle": "Peak 950°C in < 2 sec | Standard Ceramic Gold/White Coating",
         "category": "infrared",
         "description": "Coiled tungsten filaments inside quartz gas-flushed tubes. Standard ceramic white reflect backing redirects 90% of radiation forward toward active web targets.",
@@ -360,6 +372,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-ceramic-ir",
         "name": "Ceramic Infrared Heaters",
+        "slug": "ceramic-infrared-heaters",
         "subtitle": "60W - 1000W | Resistant curved & flat elements",
         "category": "ceramic",
         "description": "Glazed cast-in alloy heaters designed for vacuum thermoforming systems. Impervious to aggressive splash moisture, chemical vapor corrosion, or acid vapors.",
@@ -389,6 +402,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-sw-modules",
         "name": "Short Wave IR Modules",
+        "slug": "short-wave-ir-modules",
         "subtitle": "Pre-wired array banks | Gold reflectors",
         "category": "ovens",
         "description": "Fully balanced, multi-lamp mechanical blower rigs focusing high-speed heat for automated plastics embossing and packaging film shrink tunnels.",
@@ -419,6 +433,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-mw-modules",
         "name": "Medium Wave IR Heating Modules",
+        "slug": "medium-wave-ir-heating-modules",
         "subtitle": "Durable Silica Quartz tubes | Balanced thermal absorption",
         "category": "ovens",
         "description": "Optimized for high-speed continuous line grids, paint ovens, paper pre-heating, moisture evaporation, and surface adhesive reactivation.",
@@ -449,6 +464,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-bobbin",
         "name": "Bobbin Heaters",
+        "slug": "bobbin-heaters",
         "subtitle": "Ceramic support bobbins | Quick Slide-in Replacement",
         "category": "ceramic",
         "description": "Simplifies element replacements: these slide straight into protective metallic tubes without needing to drain chemical oil wells or high pressure liquid tanks.",
@@ -478,6 +494,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-micro-tubular",
         "name": "Micro Tubular Heaters",
+        "slug": "micro-tubular-heaters",
         "subtitle": "Nozzle-wrapped coiled heaters | Maximum local watts output",
         "category": "tubular-heaters",
         "description": "Highly compact helically coiled elements designed for plastic injection molds where maximum local power output and miniature fitting spaces are vital.",
@@ -507,6 +524,7 @@ SEED_PRODUCTS = [
     {
         "id": "brochure-quartz-tubes",
         "name": "Clear & Milky Quartz Tubes",
+        "slug": "clear-milky-quartz-tubes",
         "subtitle": "99.98% SiO2 Purity | Ultra-low -OH Hydrosol indexes",
         "category": "quartz-tubes",
         "description": "Floro-silica tubes available in opaque milky or transparent glass options. Resistant to temperature changes, ideal for microwave furnaces and car baking systems.",

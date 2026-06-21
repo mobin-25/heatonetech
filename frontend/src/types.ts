@@ -13,6 +13,7 @@ export interface ProductSpec {
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   subtitle: string;
   category: 'quartz-tubes' | 'infrared' | 'ceramic' | 'ovens' | 'tubular-heaters';
   description: string;
