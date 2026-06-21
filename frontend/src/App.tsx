@@ -48,6 +48,11 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [loading, setLoading] = useState(true);
 
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setSelectedProductId(null);
+  };
+
   // Scroll to top of the page on tab/page change
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -55,6 +60,8 @@ export default function App() {
 
   // Synchronize browser URL pathname with activeTab and selectedProductId
   useEffect(() => {
+    if (loading) return;
+
     const routes: Record<TabType, string> = {
       home: '/',
       products: '/products',
@@ -71,10 +78,22 @@ export default function App() {
     }
 
     const currentPath = window.location.pathname.toLowerCase();
+
+    // If we're on the products tab, and the URL has an unrecognized slug, 
+    // keep the current URL so we can show the "Product Not Found" screen.
+    const isInvalidSlug = currentPath.startsWith('/products/') &&
+      currentPath !== '/products' &&
+      currentPath !== '/products/' &&
+      !products.some(p => p.slug === currentPath.replace('/products/', ''));
+
+    if (activeTab === 'products' && isInvalidSlug && !selectedProductId) {
+      return;
+    }
+
     if (currentPath !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
-  }, [activeTab, selectedProductId, products]);
+  }, [activeTab, selectedProductId, products, loading]);
 
   // Handle browser back/forward buttons (popstate navigation)
   useEffect(() => {
@@ -548,9 +567,7 @@ export default function App() {
       {/* Dynamic Header */}
       <Header
         activeTab={activeTab}
-        setActiveTab={(tab) => {
-          setActiveTab(tab);
-        }}
+        setActiveTab={handleTabChange}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenCall={() => setIsCallOpen(true)}
         onOpenHistory={() => setIsHistoryOpen(true)}
@@ -570,7 +587,7 @@ export default function App() {
 
       {/* Unified footer */}
       <Footer 
-        setActiveTab={setActiveTab} 
+        setActiveTab={handleTabChange} 
         onOpenCall={() => setIsCallOpen(true)} 
       />
 
