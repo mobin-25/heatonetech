@@ -308,6 +308,19 @@ export default function App() {
       const data = await res.json();
       if (data.products) {
         setProducts(data.products);
+        
+        // Reconcile dynamic path with database loaded products synchronously inside the fetch handler
+        const path = window.location.pathname.toLowerCase();
+        if (path.startsWith('/products/')) {
+          const parts = path.split('/');
+          if (parts.length > 2 && parts[2]) {
+            const slug = parts[2];
+            const found = data.products.find((p: any) => p.slug === slug);
+            if (found) {
+              setSelectedProductId(found.id);
+            }
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching products from database:", err);
@@ -320,7 +333,7 @@ export default function App() {
     fetchProducts();
   }, []);
 
-  // Reconcile dynamic path with database loaded products
+  // Reconcile dynamic path with database loaded products (fallback/updates check)
   useEffect(() => {
     if (!loading && products.length > 0) {
       const path = window.location.pathname.toLowerCase();
