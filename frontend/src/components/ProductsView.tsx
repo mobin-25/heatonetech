@@ -646,12 +646,35 @@ export default function ProductsView({
   // Generate product slug for canonical URL and metadata
   const productSlug = viewedProduct ? viewedProduct.slug : '';
 
+  // Helper to format absolute image URL for Search Console schema validation
+  const getSchemaImageUrl = (product: Product): string => {
+    let img = product.imageUrl || '';
+    if (img.startsWith('data:image/') || !img) {
+      const fallbackImages: Record<string, string> = {
+        infrared: 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.png',
+        ceramic: 'https://www.heatonetechnology.live/images/ceramic_band_ref_1780920035217.png',
+        'quartz-tubes': 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.png',
+        'tubular-heaters': 'https://www.heatonetechnology.live/images/finned_air_ref_1780920106330.png',
+        ovens: 'https://www.heatonetechnology.live/images/glowing_heater_banner_1780912353211.png'
+      };
+      return fallbackImages[product.category] || fallbackImages.infrared;
+    }
+    if (img.startsWith('/')) {
+      return `https://www.heatonetechnology.live${img}`;
+    }
+    if (img.includes('assets/')) {
+      const cleanPath = img.replace(/^(\.\.\/)+/, '').replace(/^src\//, '');
+      return `https://www.heatonetechnology.live/${cleanPath}`;
+    }
+    return img;
+  };
+
   // Dynamic Product JSON-LD schema
   const productSchema = viewedProduct ? {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": viewedProduct.name,
-    "image": viewedProduct.imageUrl ? [viewedProduct.imageUrl] : [],
+    "image": [getSchemaImageUrl(viewedProduct)],
     "description": viewedProduct.description,
     "brand": {
       "@type": "Brand",
@@ -660,6 +683,13 @@ export default function ProductsView({
     "manufacturer": {
       "@type": "Organization",
       "name": "Heat One Technology"
+    },
+    "url": `https://www.heatonetechnology.live/products/${productSlug}`,
+    "offers": {
+      "@type": "Offer",
+      "availability": "https://schema.org/InStock",
+      "priceCurrency": "INR",
+      "url": `https://www.heatonetechnology.live/products/${productSlug}`
     }
   } : null;
 
