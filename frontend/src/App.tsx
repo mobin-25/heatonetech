@@ -19,24 +19,47 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function App() {
   // Land on HomeView by default, which is the rebranded Company Profile details
   const getInitialTab = (): TabType => {
-  const path = window.location.pathname.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
 
-  if (path === '/products') return 'products';
-  if (path === '/contact') return 'contact';
-  if (path === '/admin') return 'admin';
+    if (path.startsWith('/products')) return 'products';
+    if (path === '/contact') return 'contact';
+    if (path === '/admin') return 'admin';
 
-  return 'home';
-};
+    return 'home';
+  };
 
-const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const getInitialProductId = (): string | null => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.startsWith('/products/')) {
+      const parts = path.split('/');
+      if (parts.length > 2 && parts[2]) {
+        const slug = parts[2];
+        const found = PRODUCTS.find(p => {
+          const productSlug = p.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
+          return productSlug === slug;
+        });
+        return found ? found.id : null;
+      }
+    }
+    return null;
+  };
+
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(getInitialProductId);
+
+  // Dynamic products list from MongoDB
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [loading, setLoading] = useState(true);
 
   // Scroll to top of the page on tab/page change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [activeTab]);
 
-  // Synchronize browser URL pathname with activeTab
+  // Synchronize browser URL pathname with activeTab and selectedProductId
   useEffect(() => {
     const routes: Record<TabType, string> = {
       home: '/',
@@ -44,26 +67,64 @@ const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
       contact: '/contact',
       admin: '/admin'
     };
+
+    let targetPath = routes[activeTab] || '/';
+    if (activeTab === 'products' && selectedProductId) {
+      const selectedProduct = products.find(p => p.id === selectedProductId);
+      if (selectedProduct) {
+        const slug = selectedProduct.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '');
+        targetPath = `/products/${slug}`;
+      }
+    }
+
     const currentPath = window.location.pathname.toLowerCase();
-    const targetPath = routes[activeTab] || '/';
     if (currentPath !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
-  }, [activeTab]);
+  }, [activeTab, selectedProductId, products]);
 
   // Handle browser back/forward buttons (popstate navigation)
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
-      if (path === '/products') setActiveTab('products');
-      else if (path === '/contact') setActiveTab('contact');
-      else if (path === '/admin') setActiveTab('admin');
-      else setActiveTab('home');
+      if (path === '/contact') {
+        setActiveTab('contact');
+        setSelectedProductId(null);
+      } else if (path === '/admin') {
+        setActiveTab('admin');
+        setSelectedProductId(null);
+      } else if (path.startsWith('/products')) {
+        setActiveTab('products');
+        const parts = path.split('/');
+        if (parts.length > 2 && parts[2]) {
+          const slug = parts[2];
+          const found = products.find(p => {
+            const productSlug = p.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)+/g, '');
+            return productSlug === slug;
+          });
+          if (found) {
+            setSelectedProductId(found.id);
+          } else {
+            setSelectedProductId(null);
+          }
+        } else {
+          setSelectedProductId(null);
+        }
+      } else {
+        setActiveTab('home');
+        setSelectedProductId(null);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [products]);
   
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<{ email: string } | null>(() => {
@@ -155,9 +216,7 @@ const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
     }
   }, [theme]);
 
-  // Dynamic products list from MongoDB
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
-  const [loading, setLoading] = useState(true);
+
 
   // Browser storage/connection limits tracker
   const [storageError, setStorageError] = useState<string | null>(null);
@@ -257,6 +316,29 @@ const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Reconcile dynamic path with database loaded products
+  useEffect(() => {
+    if (!loading && products.length > 0) {
+      const path = window.location.pathname.toLowerCase();
+      if (path.startsWith('/products/')) {
+        const parts = path.split('/');
+        if (parts.length > 2 && parts[2]) {
+          const slug = parts[2];
+          const found = products.find(p => {
+            const productSlug = p.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)+/g, '');
+            return productSlug === slug;
+          });
+          if (found && selectedProductId !== found.id) {
+            setSelectedProductId(found.id);
+          }
+        }
+      }
+    }
+  }, [loading, products, selectedProductId]);
 
   const handleAddProduct = async (newProd: Product) => {
     try {
@@ -421,6 +503,7 @@ const [activeTab, setActiveTab] = useState<TabType>(getInitialTab);
             products={products}
             isAdminLoggedIn={isAdminLoggedIn}
             onUpdateProductDetail={handleUpdateProductDetail}
+            onNavigateToTab={(tab) => setActiveTab(tab)}
           />
         );
       case 'contact':

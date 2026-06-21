@@ -416,6 +416,7 @@ interface ProductsViewProps {
   products: Product[];
   isAdminLoggedIn?: boolean;
   onUpdateProductDetail?: (productId: string, updatedProduct: Product) => void;
+  onNavigateToTab?: (tab: 'home' | 'products' | 'contact' | 'admin') => void;
 }
 
 export default function ProductsView({
@@ -429,6 +430,7 @@ export default function ProductsView({
   products = [],
   isAdminLoggedIn = false,
   onUpdateProductDetail,
+  onNavigateToTab,
 }: ProductsViewProps) {
   
   const ALL_PRODUCTS = products;
@@ -626,23 +628,130 @@ export default function ProductsView({
     return matchesCategory && matchesSearch;
   });
 
+  // Generate product slug for canonical URL and metadata
+  const productSlug = viewedProduct
+    ? viewedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+    : '';
+
+  // Dynamic Product JSON-LD schema
+  const productSchema = viewedProduct ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": viewedProduct.name,
+    "image": viewedProduct.imageUrl ? [viewedProduct.imageUrl] : [],
+    "description": viewedProduct.description,
+    "brand": {
+      "@type": "Brand",
+      "name": "Heat One Technology"
+    },
+    "manufacturer": {
+      "@type": "Organization",
+      "name": "Heat One Technology"
+    }
+  } : null;
+
+  // Breadcrumb schema
+  const breadcrumbSchema = viewedProduct ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.heatonetechnology.live/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Products",
+        "item": "https://www.heatonetechnology.live/products"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": viewedProduct.name,
+        "item": `https://www.heatonetechnology.live/products/${productSlug}`
+      }
+    ]
+  } : null;
+
+  // Catalog ItemList schema
+  const itemListSchema = !viewedProduct ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Industrial Heaters & Heating Elements Catalog",
+    "numberOfItems": ALL_PRODUCTS.length,
+    "itemListElement": ALL_PRODUCTS.map((p, index) => {
+      const pSlug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      return {
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://www.heatonetechnology.live/products/${pSlug}`
+      };
+    })
+  } : null;
+
   return (
     <>
-      <Helmet>
-        <title>
-          Industrial Heaters, Quartz Tube Heaters & Ceramic Heaters | Heat One Technology
-        </title>
+      {viewedProduct ? (
+        <Helmet>
+          <title>{`${viewedProduct.name} Manufacturer in India | Heat One Technology`}</title>
+          <meta
+            name="description"
+            content={`Heat One Technology manufactures ${viewedProduct.name} for industrial heating applications. ${viewedProduct.description} Custom sizes and specifications available.`}
+          />
+          <meta
+            name="keywords"
+            content={`${viewedProduct.name.toLowerCase()}, industrial heater manufacturer, heat one technology, thane, india`}
+          />
+          <link rel="canonical" href={`https://www.heatonetechnology.live/products/${productSlug}`} />
 
-        <meta
-          name="description"
-          content="Heat One Technology manufactures Quartz Tube Heaters, Ceramic Band Heaters, Cartridge Heaters, Bobbin Heaters, Tubular Heaters, Infrared Heaters, Immersion Heaters and Industrial Heating Solutions in India."
-        />
+          {/* Open Graph Tags */}
+          <meta property="og:title" content={`${viewedProduct.name} Manufacturer in India | Heat One Technology`} />
+          <meta property="og:description" content={viewedProduct.description} />
+          <meta property="og:url" content={`https://www.heatonetechnology.live/products/${productSlug}`} />
+          <meta property="og:type" content="product" />
+          {viewedProduct.imageUrl && <meta property="og:image" content={viewedProduct.imageUrl} />}
 
-        <meta
-          name="keywords"
-          content="quartz tube heater, ceramic band heater, infrared heater, tubular heater, industrial heater manufacturer, heat one technology"
-        />
-      </Helmet>
+          {/* Twitter Card Tags */}
+          <meta name="twitter:title" content={`${viewedProduct.name} Manufacturer in India | Heat One Technology`} />
+          <meta name="twitter:description" content={viewedProduct.description} />
+          {viewedProduct.imageUrl && <meta name="twitter:image" content={viewedProduct.imageUrl} />}
+
+          {/* Product & Breadcrumb Schemas */}
+          <script type="application/ld+json">
+            {JSON.stringify(productSchema)}
+          </script>
+          <script type="application/ld+json">
+            {JSON.stringify(breadcrumbSchema)}
+          </script>
+        </Helmet>
+      ) : (
+        <Helmet>
+          <title>Industrial Heaters & Heating Elements | Heat One Technology</title>
+          <meta
+            name="description"
+            content="Manufacturer of Quartz Tube Heaters, Ceramic Band Heaters, Infrared Heaters, Tubular Heaters, Cartridge Heaters, Bobbin Heaters and Industrial Heating Solutions in India."
+          />
+          <meta
+            name="keywords"
+            content="quartz tube heater, ceramic band heater, infrared heater, tubular heater, industrial heater manufacturer, heat one technology"
+          />
+          <link rel="canonical" href="https://www.heatonetechnology.live/products" />
+
+          {/* Open Graph Tags */}
+          <meta property="og:title" content="Industrial Heaters & Heating Elements | Heat One Technology" />
+          <meta property="og:description" content="Manufacturer of Quartz Tube Heaters, Ceramic Band Heaters, Infrared Heaters, Tubular Heaters, Cartridge Heaters, Bobbin Heaters and Industrial Heating Solutions in India." />
+          <meta property="og:url" content="https://www.heatonetechnology.live/products" />
+          <meta property="og:type" content="website" />
+
+          {/* ItemList Schema */}
+          <script type="application/ld+json">
+            {JSON.stringify(itemListSchema)}
+          </script>
+        </Helmet>
+      )}
       <div className="bg-[#060608] min-h-screen text-zinc-100 py-16 px-4 md:px-8" id="products-view-container">
       <div className="max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
@@ -656,6 +765,34 @@ export default function ProductsView({
               className="space-y-8"
               id="product-detail-screen"
             >
+              {/* BREADCRUMBS NAVIGATION */}
+              <nav className="flex items-center gap-2 text-[10px] md:text-xs font-mono text-zinc-500 uppercase tracking-wider select-none mb-1">
+                <span
+                  onClick={() => {
+                    setViewedProduct(null);
+                    if (onSelectProductId) onSelectProductId(null);
+                    if (onNavigateToTab) onNavigateToTab('home');
+                  }}
+                  className="hover:text-white cursor-pointer transition-colors"
+                >
+                  Home
+                </span>
+                <span>/</span>
+                <span
+                  onClick={() => {
+                    setViewedProduct(null);
+                    if (onSelectProductId) onSelectProductId(null);
+                  }}
+                  className="hover:text-white cursor-pointer transition-colors"
+                >
+                  Products
+                </span>
+                <span>/</span>
+                <span className="text-orange-500 font-semibold truncate">
+                  {viewedProduct.name}
+                </span>
+              </nav>
+
               {/* BREADCRUMB / ACTION BAR */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-6">
                 <button
@@ -928,6 +1065,115 @@ export default function ProductsView({
                   </div>
                 </div>
               </div>
+
+              {/* RELATED PRODUCTS */}
+              <div className="mt-16 pt-12 border-t border-zinc-900/60" id="related-products-section">
+                <h3 className="text-lg font-display font-medium text-white mb-6 uppercase tracking-wider">
+                  Related Heating Elements
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {(() => {
+                    const matchedCat = ALL_PRODUCTS.filter(p => p.id !== viewedProduct.id && (p.category === viewedProduct.category || !viewedProduct.category));
+                    const otherCats = ALL_PRODUCTS.filter(p => p.id !== viewedProduct.id && p.category !== viewedProduct.category);
+                    const combined = [...matchedCat, ...otherCats].slice(0, 3);
+                    return combined.map((rp) => {
+                      const rpSlug = rp.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                      return (
+                        <a
+                          key={rp.id}
+                          href={`/products/${rpSlug}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setViewedProduct(rp);
+                            setSelectedProductDetails(rp);
+                            if (onSelectProductId) {
+                              onSelectProductId(rp.id);
+                            }
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="bg-[#0b0c0f] border border-zinc-900 hover:border-orange-500/40 p-4 rounded-xl group transition-all duration-300 flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="aspect-video w-full bg-zinc-950 rounded-lg overflow-hidden border border-zinc-900 flex items-center justify-center mb-4">
+                              {rp.imageUrl ? (
+                                <img src={rp.imageUrl} alt={rp.name} className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" referrerPolicy="no-referrer" />
+                              ) : (
+                                <ImageIcon className="w-6 h-6 text-zinc-850" />
+                              )}
+                            </div>
+                            <h4 className="text-sm font-semibold text-zinc-100 group-hover:text-orange-400 transition-colors uppercase tracking-wide truncate">
+                              {rp.name}
+                            </h4>
+                            <p className="text-[10px] text-zinc-500 mt-1 truncate">
+                              {rp.subtitle}
+                            </p>
+                          </div>
+                          <div className="text-[10px] font-mono text-orange-500 mt-4 uppercase flex items-center gap-1">
+                            <span>View Spec sheet</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          </div>
+                        </a>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+
+              {/* DYNAMIC SEO SECTION */}
+              <section className="mt-16 pt-12 border-t border-zinc-900/60" id="single-product-seo-content">
+                <h2 className="text-xl md:text-2xl font-display font-medium text-white mb-6 uppercase tracking-wide">
+                  Comprehensive Technical Analysis: {viewedProduct.name}
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-zinc-400 text-xs md:text-sm leading-relaxed text-left">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-bold">Product Overview & Design</h3>
+                    <p className="text-justify">
+                      The <strong>{viewedProduct.name}</strong> manufactured by Heat One Technology is engineered to meet the stringent demands of modern industrial environments. {viewedProduct.description} In addition, {viewedProduct.longDescription || ''} This system is constructed using high-quality components, providing exceptional heat transfer efficiency and stable long-term operations even under continuous load.
+                    </p>
+                    <p className="text-justify">
+                      Key design features of this unit include:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1.5 text-zinc-350 text-justify">
+                      {(viewedProduct.features || []).map((feat, idx) => (
+                        <li key={idx}><strong>{feat}:</strong> Carefully calibrated to improve thermal output and prevent operational element burn-out.</li>
+                      ))}
+                      {viewedProduct.specifications?.maxTemperature && (
+                        <li><strong>Thermal Endurance:</strong> Capable of withstanding peak operating conditions up to {viewedProduct.specifications.maxTemperature}.</li>
+                      )}
+                      {viewedProduct.specifications?.material && (
+                        <li><strong>Material Integrity:</strong> Built from premium sheathing and core elements like {viewedProduct.specifications.material}.</li>
+                      )}
+                    </ul>
+                    <p className="text-justify">
+                      By utilizing advanced insulation materials (such as magnesium oxide or high-grade ceramic tiles), Heat One Technology ensures that thermal energy is focused precisely where it is required, drastically reducing heat dissipation into the surrounding workspace.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-bold">Industrial Applications & Deployments</h3>
+                    <p className="text-justify">
+                      The application spectrum of our industrial <strong>{viewedProduct.name}</strong> covers multiple sectors. It is extensively deployed in:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1.5 text-zinc-350 text-justify">
+                      {(viewedProduct.applications || []).map((app, idx) => (
+                        <li key={idx}><strong>{app}:</strong> Optimized for fast curing, drying, or processing cycles under strict safety guidelines.</li>
+                      ))}
+                    </ul>
+                    <p className="text-justify">
+                      Whether utilized in plastic extrusion nozzle zones, paint curing ducts, chemical reactors, or high-pressure boilers, our elements offer consistent thermal distribution. This helps manufacturers maintain precise process temperatures, improving overall batch quality and lowering scrap rates.
+                    </p>
+                    
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-bold pt-2">Customization Options & Manufacturing Capabilities</h3>
+                    <p className="text-justify">
+                      At Heat One Technology, we understand that standard thermal elements do not fit every machine configuration. Therefore, we offer extensive customization. Clients can specify exact physical dimensions, terminal setups (screw terminals, flexible lead wires, or plug connectors), and performance options.
+                    </p>
+                    <p className="text-justify">
+                      Our manufacturing facility in Thane, India, utilizes state-of-the-art winding machines, swaging systems, and diagnostic chambers to build elements calibrated to {viewedProduct.specifications?.power || 'custom outputs'} and operating on {viewedProduct.specifications?.voltage || 'various industrial phases'}. Each unit undergoes rigorous resistance and insulation tests to ensure maximum durability, reliability, and safety prior to shipment.
+                    </p>
+                  </div>
+                </div>
+              </section>
             </motion.div>
           ) : (
             <motion.div
@@ -1052,9 +1298,11 @@ export default function ProductsView({
               const isSelected = selectedProductDetails?.id === prod.id || viewedProduct?.id === prod.id;
               
               return (
-                <div
+                <motion.a
                   key={prod.id}
-                  onClick={() => {
+                  href={`/products/${prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`}
+                  onClick={(e) => {
+                    e.preventDefault();
                     setSelectedProductDetails(prod);
                     setViewedProduct(prod);
                     if (onSelectProductId) {
@@ -1064,7 +1312,7 @@ export default function ProductsView({
                       handleOpenEditWorkspace(prod);
                     }
                   }}
-                  className={`min-w-[280px] md:min-w-[320px] max-w-[320px] bg-[#0b0c10] border rounded-xl overflow-hidden cursor-pointer transition-all duration-300 snap-start flex-shrink-0 group ${
+                  className={`min-w-[280px] md:min-w-[320px] max-w-[320px] bg-[#0b0c10] border rounded-xl overflow-hidden cursor-pointer transition-all duration-300 snap-start flex-shrink-0 group block ${
                     isSelected 
                       ? 'border-orange-500 shadow-[0_0_24px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/40' 
                       : 'border-zinc-900 hover:border-zinc-700 hover:shadow-lg'
@@ -1123,7 +1371,7 @@ export default function ProductsView({
                       </p>
                     </div>
                   </div>
-                </div>
+                </motion.a>
               );
             })}
           </div>
@@ -1217,9 +1465,11 @@ export default function ProductsView({
                 const isInCart = quoteCart.some(item => item.id === product.id);
 
                 return (
-                  <motion.div
+                  <motion.a
                     key={product.id}
-                    onClick={() => {
+                    href={`/products/${product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`}
+                    onClick={(e) => {
+                      e.preventDefault();
                       setSelectedProductDetails(product);
                       setViewedProduct(product);
                       if (onSelectProductId) {
@@ -1229,7 +1479,7 @@ export default function ProductsView({
                         handleOpenEditWorkspace(product);
                       }
                     }}
-                    className={`p-5 rounded-xl border cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 relative overflow-hidden ${
+                    className={`p-5 rounded-xl border cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 relative overflow-hidden block ${
                       isSelected
                         ? 'bg-[#0f1013] border-orange-500/70 shadow-[0_0_16px_rgba(234,88,12,0.1)]'
                         : 'bg-[#0b0c0f] border-zinc-900 hover:border-zinc-800/80 hover:bg-[#0d0e12]'
@@ -1280,6 +1530,7 @@ export default function ProductsView({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           onAddProductToQuote(product);
                         }}
                         className={`px-4 py-2 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all w-full md:w-auto text-center justify-center cursor-pointer ${
@@ -1295,7 +1546,7 @@ export default function ProductsView({
                       <span className="text-[9px] font-mono text-zinc-500 hidden md:block">Click to view details</span>
                     </div>
 
-                  </motion.div>
+                  </motion.a>
                 );
               })
             )}
