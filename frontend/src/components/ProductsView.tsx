@@ -644,7 +644,7 @@ export default function ProductsView({
   });
 
   // Generate product slug for canonical URL and metadata
-  const productSlug = viewedProduct ? viewedProduct.slug : '';
+  const productSlug = viewedProduct ? (viewedProduct.slug || '').trim().toLowerCase() : '';
 
   // Helper to format absolute image URL for Search Console schema validation
   const getSchemaImageUrl = (product: Product): string => {
