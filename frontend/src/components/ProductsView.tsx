@@ -761,7 +761,7 @@ export default function ProductsView({
         <Helmet>
           <title>Product Not Found | Heat One Technology</title>
           <meta name="description" content="The requested industrial heating element was not found in our catalog." />
-          <meta name="robots" content="noindex, follow" />
+          <meta name="robots" content="index, follow" />
           <link rel="canonical" href={`https://www.heatonetechnology.live/products/${requestedSlug}`} />
         </Helmet>
       ) : viewedProduct ? (
@@ -776,6 +776,7 @@ export default function ProductsView({
             content={`${viewedProduct.name.toLowerCase()}, industrial heater manufacturer, heat one technology, thane, india`}
           />
           <link rel="canonical" href={`https://www.heatonetechnology.live/products/${productSlug}`} />
+          <meta name="robots" content="index, follow" />
 
           {/* Open Graph Tags */}
           <meta property="og:title" content={`${viewedProduct.name} Manufacturer in India | Heat One Technology`} />
@@ -809,6 +810,7 @@ export default function ProductsView({
             content="quartz tube heater, ceramic band heater, infrared heater, tubular heater, industrial heater manufacturer, heat one technology"
           />
           <link rel="canonical" href="https://www.heatonetechnology.live/products" />
+          <meta name="robots" content="index, follow" />
 
           {/* Open Graph Tags */}
           <meta property="og:title" content="Industrial Heaters & Heating Elements | Heat One Technology" />
