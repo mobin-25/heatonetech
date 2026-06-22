@@ -108,7 +108,7 @@ export default function Header({
               className="h-11 w-11 shrink-0 transition-all duration-300 group-hover:scale-105 flex items-center justify-center"
             >
               <img
-                src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
+                src={theme === 'light' ? '/images/logo-light.webp' : '/images/logo.webp'}
                 alt="Heat One Technology Logo"
                 className="w-full h-full object-contain scale-[1.18]"
                 style={{

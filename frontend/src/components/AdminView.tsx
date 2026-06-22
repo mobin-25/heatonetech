@@ -29,13 +29,13 @@ type AdminTabType = 'queries' | 'products' | 'users';
 
 // Available pre-generated images for easier setup
 const PRESET_IMAGES = [
-  { label: 'Ceramic Infrared Emitter', value: '/src/assets/images/ceramic_ir_ref_1780921664369.png' },
-  { label: 'Ceramic Bobbin Heater', value: '/src/assets/images/bobbin_ref_1780921683173.png' },
-  { label: 'Ceramic Band Heater', value: '/src/assets/images/ceramic_band_ref_1780920035217.png' },
-  { label: 'Tubular Finned Heater', value: '/src/assets/images/finned_air_ref_1780920106330.png' },
-  { label: 'Immersion Heater Cluster', value: '/src/assets/images/immersion_cluster_ref_1780920087508.png' },
-  { label: 'Cartridge Heating Pencil', value: '/src/assets/images/cartridge_heater_1780916136779.png' },
-  { label: 'Generic Metallic Quartz', value: '/src/assets/images/infrared_quartz_heater_1780916164777.png' },
+  { label: 'Ceramic Infrared Emitter', value: '/src/assets/images/ceramic_ir_ref_1780921664369.webp' },
+  { label: 'Ceramic Bobbin Heater', value: '/src/assets/images/bobbin_ref_1780921683173.webp' },
+  { label: 'Ceramic Band Heater', value: '/src/assets/images/ceramic_band_ref_1780920035217.webp' },
+  { label: 'Tubular Finned Heater', value: '/src/assets/images/finned_air_ref_1780920106330.webp' },
+  { label: 'Immersion Heater Cluster', value: '/src/assets/images/immersion_cluster_ref_1780920087508.webp' },
+  { label: 'Cartridge Heating Pencil', value: '/src/assets/images/cartridge_heater_1780916136779.webp' },
+  { label: 'Generic Metallic Quartz', value: '/src/assets/images/infrared_quartz_heater_1780916164777.webp' },
 ];
 
 export default function AdminView({

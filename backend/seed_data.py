@@ -186,7 +186,7 @@ SEED_PRODUCTS = [
             "Extruder head heating",
             "Container & drum heating systems"
         ],
-        "imageUrl": "/src/assets/images/standard_band_ref_1780920054390.png"
+        "imageUrl": "/src/assets/images/standard_band_ref_1780920054390.webp"
     },
     {
         "id": "brochure-ceramic-band",
@@ -216,7 +216,7 @@ SEED_PRODUCTS = [
             "Metallurgical dies heating",
             "Resin compounding machines"
         ],
-        "imageUrl": "/src/assets/images/ceramic_band_ref_1780920035217.png"
+        "imageUrl": "/src/assets/images/ceramic_band_ref_1780920035217.webp"
     },
     {
         "id": "brochure-cartridge-heaters",
@@ -246,7 +246,7 @@ SEED_PRODUCTS = [
             "Medical test instrument heating blocks",
             "Hot-melt glue nozzle cylinders"
         ],
-        "imageUrl": "/src/assets/images/cartridge_heater_1780916136779.png"
+        "imageUrl": "/src/assets/images/cartridge_heater_1780916136779.webp"
     },
     {
         "id": "brochure-ceramic-strip",
@@ -276,7 +276,7 @@ SEED_PRODUCTS = [
             "In-line processing fluid heating",
             "Sterilization equipment pools"
         ],
-        "imageUrl": "/src/assets/images/immersion_cluster_ref_1780920087508.png"
+        "imageUrl": "/src/assets/images/immersion_cluster_ref_1780920087508.webp"
     },
     {
         "id": "brochure-tubular-immersion",
@@ -306,7 +306,7 @@ SEED_PRODUCTS = [
             "Heavy duty water baths and bulk boilers",
             "High capacity manufacturing washing lines"
         ],
-        "imageUrl": "/src/assets/images/multi_immersion_ref_1780920071201.png"
+        "imageUrl": "/src/assets/images/multi_immersion_ref_1780920071201.webp"
     },
     {
         "id": "brochure-tubular-fins",
@@ -336,7 +336,7 @@ SEED_PRODUCTS = [
             "Industrial food dehydration chambers",
             "Central air ventilation and furnace ducts"
         ],
-        "imageUrl": "/src/assets/images/finned_air_ref_1780920106330.png"
+        "imageUrl": "/src/assets/images/finned_air_ref_1780920106330.webp"
     },
     {
         "id": "brochure-shortwave-ir",
@@ -367,7 +367,7 @@ SEED_PRODUCTS = [
             "Paper mill moisture evaporation grids",
             "PTFE bottle pre-forming stations"
         ],
-        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.png"
+        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.webp"
     },
     {
         "id": "brochure-ceramic-ir",
@@ -397,7 +397,7 @@ SEED_PRODUCTS = [
             "Automated packaging heat sealers",
             "Outdoor comfort area systems"
         ],
-        "imageUrl": "/src/assets/images/ceramic_ir_ref_1780921664369.png"
+        "imageUrl": "/src/assets/images/ceramic_ir_ref_1780921664369.webp"
     },
     {
         "id": "brochure-sw-modules",
@@ -428,7 +428,7 @@ SEED_PRODUCTS = [
             "Plastic foil thermoforming conveyor zones",
             "Labeling shrink tunnel machines"
         ],
-        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.png"
+        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.webp"
     },
     {
         "id": "brochure-mw-modules",
@@ -459,7 +459,7 @@ SEED_PRODUCTS = [
             "Laminated safety glass foil production",
             "Pulp cardboard continuous press"
         ],
-        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.png"
+        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.webp"
     },
     {
         "id": "brochure-bobbin",
@@ -489,7 +489,7 @@ SEED_PRODUCTS = [
             "Paraffin heating containers",
             "Electroplating baths"
         ],
-        "imageUrl": "/src/assets/images/bobbin_ref_1780921683173.png"
+        "imageUrl": "/src/assets/images/bobbin_ref_1780921683173.webp"
     },
     {
         "id": "brochure-micro-tubular",
@@ -519,7 +519,7 @@ SEED_PRODUCTS = [
             "Analytical device heated valves",
             "Packaging hot sealing pins"
         ],
-        "imageUrl": "/src/assets/images/cartridge_heater_1780916136779.png"
+        "imageUrl": "/src/assets/images/cartridge_heater_1780916136779.webp"
     },
     {
         "id": "brochure-quartz-tubes",
@@ -549,6 +549,6 @@ SEED_PRODUCTS = [
             "Microwave heating systems and furnaces",
             "Ozone disinfection apparatus guards"
         ],
-        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.png"
+        "imageUrl": "/src/assets/images/infrared_quartz_heater_1780916164777.webp"
     }
 ]

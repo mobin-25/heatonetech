@@ -22,17 +22,17 @@ import {
 } from 'lucide-react';
 
 // Dark mode banner (industrial glowing furnace)
-import bannerImg from '../assets/images/glowing_heater_banner_1780912353211.png';
+import bannerImg from '../assets/images/glowing_heater_banner_1780912353211.webp';
 
 // Light mode rotating product banners (white-background studio shots)
-import lightBanner0 from '../assets/images/finned_heater_light_banner_1781276936810.jpg';
-import lightBanner1 from '../assets/images/ceramic_band_ref_1780920035217.png';
-import lightBanner2 from '../assets/images/finned_air_ref_1780920106330.png';
-import lightBanner3 from '../assets/images/immersion_cluster_ref_1780920087508.png';
-import lightBanner4 from '../assets/images/multi_immersion_ref_1780920071201.png';
-import lightBanner5 from '../assets/images/standard_band_ref_1780920054390.png';
-import lightBanner6 from '../assets/images/bobbin_ref_1780921683173.png';
-import lightBanner7 from '../assets/images/ceramic_ir_ref_1780921664369.png';
+import lightBanner0 from '../assets/images/finned_heater_light_banner_1781276936810.webp';
+import lightBanner1 from '../assets/images/ceramic_band_ref_1780920035217.webp';
+import lightBanner2 from '../assets/images/finned_air_ref_1780920106330.webp';
+import lightBanner3 from '../assets/images/immersion_cluster_ref_1780920087508.webp';
+import lightBanner4 from '../assets/images/multi_immersion_ref_1780920071201.webp';
+import lightBanner5 from '../assets/images/standard_band_ref_1780920054390.webp';
+import lightBanner6 from '../assets/images/bobbin_ref_1780921683173.webp';
+import lightBanner7 from '../assets/images/ceramic_ir_ref_1780921664369.webp';
 
 const LIGHT_BANNERS = [
   { src: lightBanner0, label: 'Thermal Systems' },
@@ -189,7 +189,7 @@ export default function HomeView({ theme = 'dark', onNavigateToProduct, products
               className="h-16 w-16 md:h-28 md:w-28 shrink-0 flex items-center justify-center bg-transparent"
             >
               <img
-                src={theme === 'light' ? '/images/logo-light.png' : '/images/logo.png'}
+                src={theme === 'light' ? '/images/logo-light.webp' : '/images/logo.webp'}
                 alt="Heat One Technology Logo"
                 className="w-full h-full object-contain scale-[1.18]"
                 style={{

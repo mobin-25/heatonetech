@@ -7,20 +7,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import ProductEditPanel from './ProductEditPanel';
 
 // Import newly generated high craftsmanship product assets
-import imgMicaBand from '../assets/images/mica_band_heater_1780916107291.png';
-import imgCeramicBand from '../assets/images/ceramic_band_heater_1780916122899.png';
-import imgCartridge from '../assets/images/cartridge_heater_1780916136779.png';
-import imgTubular from '../assets/images/tubular_immersion_heater_1780916151815.png';
-import imgInfrared from '../assets/images/infrared_quartz_heater_1780916164777.png';
+import imgMicaBand from '../assets/images/mica_band_heater_1780916107291.webp';
+import imgCeramicBand from '../assets/images/ceramic_band_heater_1780916122899.webp';
+import imgCartridge from '../assets/images/cartridge_heater_1780916136779.webp';
+import imgTubular from '../assets/images/tubular_immersion_heater_1780916151815.webp';
+import imgInfrared from '../assets/images/infrared_quartz_heater_1780916164777.webp';
 
 // Premium high-fidelity studio assets matching user specifications exactly
-import imgCeramicBandRef from '../assets/images/ceramic_band_ref_1780920035217.png';
-import imgStandardBandRef from '../assets/images/standard_band_ref_1780920054390.png';
-import imgMultiImmersionRef from '../assets/images/multi_immersion_ref_1780920071201.png';
-import imgImmersionClusterRef from '../assets/images/immersion_cluster_ref_1780920087508.png';
-import imgFinnedAirRef from '../assets/images/finned_air_ref_1780920106330.png';
-import imgCeramicIrRef from '../assets/images/ceramic_ir_ref_1780921664369.png';
-import imgBobbinRef from '../assets/images/bobbin_ref_1780921683173.png';
+import imgCeramicBandRef from '../assets/images/ceramic_band_ref_1780920035217.webp';
+import imgStandardBandRef from '../assets/images/standard_band_ref_1780920054390.webp';
+import imgMultiImmersionRef from '../assets/images/multi_immersion_ref_1780920071201.webp';
+import imgImmersionClusterRef from '../assets/images/immersion_cluster_ref_1780920087508.webp';
+import imgFinnedAirRef from '../assets/images/finned_air_ref_1780920106330.webp';
+import imgCeramicIrRef from '../assets/images/ceramic_ir_ref_1780921664369.webp';
+import imgBobbinRef from '../assets/images/bobbin_ref_1780921683173.webp';
 
 export const BROCHURE_PRODUCTS: Product[] = [
   {
@@ -651,11 +651,11 @@ export default function ProductsView({
     let img = product.imageUrl || '';
     if (img.startsWith('data:image/') || !img) {
       const fallbackImages: Record<string, string> = {
-        infrared: 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.png',
-        ceramic: 'https://www.heatonetechnology.live/images/ceramic_band_ref_1780920035217.png',
-        'quartz-tubes': 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.png',
-        'tubular-heaters': 'https://www.heatonetechnology.live/images/finned_air_ref_1780920106330.png',
-        ovens: 'https://www.heatonetechnology.live/images/glowing_heater_banner_1780912353211.png'
+        infrared: 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.webp',
+        ceramic: 'https://www.heatonetechnology.live/images/ceramic_band_ref_1780920035217.webp',
+        'quartz-tubes': 'https://www.heatonetechnology.live/images/infrared_quartz_heater_1780916164777.webp',
+        'tubular-heaters': 'https://www.heatonetechnology.live/images/finned_air_ref_1780920106330.webp',
+        ovens: 'https://www.heatonetechnology.live/images/glowing_heater_banner_1780912353211.webp'
       };
       return fallbackImages[product.category] || fallbackImages.infrared;
     }
@@ -1025,7 +1025,7 @@ export default function ProductsView({
                                 : 'border-zinc-900 opacity-60 hover:opacity-100'
                             }`}
                           >
-                            <img src={img} alt={`supplementary thumb ${idx}`} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                            <img src={img} alt={`supplementary thumb ${idx}`} referrerPolicy="no-referrer" className="w-full h-full object-cover" loading="lazy" />
                           </button>
                         ))}
                       </div>
@@ -1200,7 +1200,7 @@ export default function ProductsView({
                           <div>
                             <div className="aspect-video w-full bg-zinc-950 rounded-lg overflow-hidden border border-zinc-900 flex items-center justify-center mb-4">
                               {rp.imageUrl ? (
-                                <img src={rp.imageUrl} alt={rp.name} className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" referrerPolicy="no-referrer" />
+                                <img src={rp.imageUrl} alt={rp.name} className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" referrerPolicy="no-referrer" loading="lazy" />
                               ) : (
                                 <ImageIcon className="w-6 h-6 text-zinc-850" />
                               )}
@@ -1431,6 +1431,7 @@ export default function ProductsView({
                         alt={prod.name}
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        loading="lazy"
                       />
                     ) : (
                       <div className="text-zinc-650 flex flex-col items-center gap-1">
@@ -1593,7 +1594,7 @@ export default function ProductsView({
                       {/* Product Thumbnail */}
                       <div className="w-24 h-20 bg-zinc-950 rounded-lg border border-zinc-900 overflow-hidden flex items-center justify-center shrink-0">
                         {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" loading="lazy" />
                         ) : (
                           <ImageIcon className="w-6 h-6 text-zinc-750" />
                         )}
