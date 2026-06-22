@@ -2269,7 +2269,7 @@ export default function ProductsView({
                   src={lightboxImage}
                   alt="High Resolution Showcase"
                   referrerPolicy="no-referrer"
-                  className="max-w-full max-h-[80vh] object-contain rounded-lg border border-zinc-900 shadow-2xl select-text pointer-events-auto"
+                  className="w-[90vw] md:w-[75vw] max-w-3xl h-[45vh] sm:h-[55vh] md:h-[65vh] object-cover rounded-xl border border-zinc-800 shadow-2xl select-text pointer-events-auto"
                 />
 
                 {/* Close Button Top-Right on desktop and screen */}
