@@ -446,6 +446,46 @@ async def test_email_endpoint():
 
     return {"status": "failed", "logs": res}
 
+# --- CLOUDINARY IMAGE UPLOADER ENDPOINT ---
+import cloudinary
+import cloudinary.uploader
+
+class ImageUploadPayload(BaseModel):
+    image: str
+
+@app.post("/api/upload-image")
+async def upload_image(payload: ImageUploadPayload):
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
+    api_key = os.getenv("CLOUDINARY_API_KEY")
+    api_secret = os.getenv("CLOUDINARY_API_SECRET")
+
+    if not cloud_name or not api_key or not api_secret:
+        raise HTTPException(
+            status_code=400, 
+            detail="Cloudinary is not fully configured yet. Missing CLOUDINARY_CLOUD_NAME."
+        )
+
+    try:
+        cloudinary.config(
+            cloud_name=cloud_name,
+            api_key=api_key,
+            api_secret=api_secret
+        )
+        upload_result = cloudinary.uploader.upload(
+            payload.image,
+            folder="heatonetech_products",
+            quality="auto:good",
+            fetch_format="auto"
+        )
+        return {
+            "status": "success",
+            "url": upload_result.get("secure_url"),
+            "public_id": upload_result.get("public_id")
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cloudinary upload error: {str(e)}")
+
+
 @app.get("/api/products")
 async def get_all_products():
     try:
