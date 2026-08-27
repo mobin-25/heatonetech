@@ -620,9 +620,9 @@ export default function AdminView({
 
           <div className="bg-[#0b0c0f] border border-zinc-900 p-6 rounded-xl flex items-center justify-between">
             <div>
-              <span className="text-xs font-mono text-zinc-500 uppercase">Live MongoDB Synced</span>
+              <span className="text-xs font-mono text-zinc-500 uppercase">Live Supabase Synced</span>
               <h3 className="text-3xl font-display font-medium text-emerald-400 mt-2 font-mono">Active</h3>
-              <p className="text-[11px] text-zinc-400 mt-1">Connected to heat_one_db</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Connected to Supabase DB</p>
             </div>
             <div className="p-3 bg-emerald-500/10 rounded-lg text-emerald-400">
               <Database className="w-6 h-6" />
