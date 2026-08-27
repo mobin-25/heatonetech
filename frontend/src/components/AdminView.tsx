@@ -102,15 +102,42 @@ export default function AdminView({
     setReorderList(newList);
   };
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const uploadToCloudinaryCdn = async (imageData: string): Promise<string> => {
+    try {
+      const res = await fetch(getApiUrl("/api/upload-image"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageData }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          console.log("[CLOUDINARY CDN] Image uploaded successfully:", data.url);
+          return data.url;
+        }
+      }
+    } catch (err) {
+      console.warn("Cloudinary backend upload API unreachable, using local fallback", err);
+    }
+    return imageData;
+  };
+
   const handleLocalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      compressImage(file, 550, 550, 0.55)
-        .then(compressedUrl => {
-          setProdImgUrl(compressedUrl);
+      setIsUploadingImage(true);
+      compressImage(file, 650, 650, 0.70)
+        .then(compressedUrl => uploadToCloudinaryCdn(compressedUrl))
+        .then(finalCdnUrl => {
+          setProdImgUrl(finalCdnUrl);
         })
         .catch(err => {
-          console.error("Error compressing primary image", err);
+          console.error("Error processing primary image", err);
+        })
+        .finally(() => {
+          setIsUploadingImage(false);
         });
     }
   };
@@ -118,19 +145,25 @@ export default function AdminView({
   const handleMultipleImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const compressionPromises = Array.from(files).map((file: any) => {
-        return compressImage(file, 550, 550, 0.55);
+      setIsUploadingImage(true);
+      const uploadPromises = Array.from(files).map(async (file: any) => {
+        const compressed = await compressImage(file, 650, 650, 0.70);
+        return uploadToCloudinaryCdn(compressed);
       });
 
-      Promise.all(compressionPromises)
-        .then(compressedUrls => {
-          setProdAdditionalImages(prev => [...prev, ...compressedUrls]);
+      Promise.all(uploadPromises)
+        .then(cdnUrls => {
+          setProdAdditionalImages(prev => [...prev, ...cdnUrls]);
         })
         .catch(err => {
-          console.error("Error compressing gallery images", err);
+          console.error("Error processing gallery images", err);
+        })
+        .finally(() => {
+          setIsUploadingImage(false);
         });
     }
   };
+
 
   // --- QUERY / INQUIRY STATES ---
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
